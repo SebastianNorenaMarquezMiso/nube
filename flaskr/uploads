@@ -1,0 +1,24 @@
+zullyalarcon@gmail.com / Cr1sb3ly1506_
+
+Color
+Island Green (#2BAE66FF) and White (#FCF6F5FF)
+Orange (#f0a07c) and Purple (#4a274f) (LOGO)
+Mellow Yellow (#FFE77AFF) and Verdant Green (#2C5F2DFF)
+
+Island Green (#2BAE66FF) and Yellow (#ffd653)
+
+Red (#F65058), Yellow (#FBDE44) and Navy (#28334A)
+
+104.196.116.139
+Paleta de Colores MercadosClik
+026670
+9FEDD7
+FEF9C7
+FCE181
+EDEAE5
+-- FC593B -> Orange
+-- 4EBE86 -> Verde
+Roboto 400 italic -0.05
+Roboto 300 -0.05
+
+sudo ./certbot-auto delete --cert-name example.com
