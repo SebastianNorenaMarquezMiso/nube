@@ -1,7 +1,6 @@
 from flask import request
 import json
 import os
-#from ..modelos import db, Cancion, CancionSchema, Usuario, UsuarioSchema, Album, AlbumSchema, Comentario, ComentarioSchema, RatingComentario, RatingComentarioSchema, CancionFavoritaUsuario, CancionFavoritaSchema
 from flask_restful import Resource
 from sqlalchemy.exc import IntegrityError
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
