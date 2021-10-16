@@ -5,10 +5,8 @@ from flask_restful import Resource
 from sqlalchemy.exc import IntegrityError
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from flask.json import jsonify
-from flaskr import create_app
 
-app = create_app('default')
-
+UPLOAD_FOLDER = './uploads'
 ALLOWED_EXTENSIONS = set(['txt'])
 
 class VistaFiles(Resource):
@@ -28,7 +26,7 @@ class VistaFiles(Resource):
             return resp
         if file:
             #filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER']))
+            file.save(os.path.join(UPLOAD_FOLDER))
             print (file)
             resp = jsonify({'message' : 'File successfully uploaded'})
             resp.status_code = 201
