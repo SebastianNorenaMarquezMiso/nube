@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_restful import Api
 #from .modelos import db
-from .vistas import VistaFiles
+from vistas import VistaFiles
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS, cross_origin
 
@@ -28,3 +28,6 @@ cors = CORS(app)
 api = Api(app)
 api.add_resource(VistaFiles, '/files')
 jwt = JWTManager(app)
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port='5001')
