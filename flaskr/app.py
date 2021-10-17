@@ -1,34 +1,27 @@
-from flask import Flask
+from flaskr import create_app
 from flask_restful import Api
-#from .modelos import db
-from vistas import VistaFiles
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS, cross_origin
-
-UPLOAD_FOLDER = './uploads'
-
-
-def create_app(config_name):
-    app = Flask(__name__)
-    # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://sbbzmftwcpqmbs:63d510222da8ee4b0f412e7b34cd5b203ef12907f963453b33dec8f9f2169a0d@ec2-18-215-44-132.compute-1.amazonaws.com/d5h5dmuoe660fa'
-    app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['JWT_SECRET_KEY'] = 'frase-secreta'
-    app.config['PROPAGATE_EXCEPTIONS'] = True
-    return app
-
+from .modelos import db
+from .vistas import VistaSignIn, VistaLogIn, VistaFiles, VistaTasks, VistaTaskDetail, VistaFileDetail
 
 app = create_app('default')
 app_context = app.app_context()
 app_context.push()
 
-# db.init_app(app)
-# db.create_all()
+db.init_app(app)
+db.create_all()
 cors = CORS(app)
 
 api = Api(app)
+
 api.add_resource(VistaFiles, '/files')
+api.add_resource(VistaSignIn, '/api/auth/signup')
+api.add_resource(VistaLogIn, '/api/auth/login')
+api.add_resource(VistaTasks, '/api/tasks')
+api.add_resource(VistaTaskDetail, '/api/tasks/<int:task_id>')
+api.add_resource(VistaFileDetail, '/api/files/<string:file_name>')
+
 jwt = JWTManager(app)
 
 if __name__ == '__main__':
