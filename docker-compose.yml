@@ -1,5 +1,8 @@
-version: '3.8'
+version: '3.1'
 services:
+  # ffmpeg:
+  #   container_name: b2c-ffmpeg
+  #   image: jrottenberg/ffmpeg
   backend:
     build:
       context: ./flaskr/
