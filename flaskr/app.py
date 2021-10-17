@@ -5,6 +5,7 @@ from vistas import VistaFiles
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS, cross_origin
 
+
 UPLOAD_FOLDER = './uploads'
 
 
