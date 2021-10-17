@@ -51,7 +51,7 @@ class VistaFiles(Resource):
                 except TimeoutError:
                     proc.kill()
                 print("DONE\n")
-                resp = jsonify({'message': 'File successfully uploaded'})
+                resp = jsonify({'message': os.path.join(current_app.config['UPLOAD_FOLDER'], filename)})
                 resp.status_code = 201
                 ddir = os.path.join(current_app.root_path,
                                     current_app.config['DOWNLOAD_FOLDER'])
