@@ -41,7 +41,7 @@ class VistaFiles(Resource):
                 outputF = os.path.join(
                     current_app.config['DOWNLOAD_FOLDER'], dfile)
                 # Ffmpeg is flexible enough to handle wildstar conversions
-                convertCMD = ['ffmpeg', '-y', '-i', inputF, outputF]
+                convertCMD = ['usr/bin/ffmpeg', '-y', '-i', inputF, outputF]
 
                 executeOrder66 = sp.Popen(convertCMD)
 
