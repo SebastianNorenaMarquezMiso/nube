@@ -33,7 +33,7 @@ class VistaFiles(Resource):
                 filename = secure_filename(file.filename)
                 file.save(os.path.join(
                     current_app.config['UPLOAD_FOLDER'], filename))
-                dfile = '{}.{}'.format(os.path.splitext(filename)[
+		dfile = '{}.{}'.format(os.path.splitext(filename)[
                                        0], str(format))  # Build file name
                 inputF = os.path.join(
                     current_app.config['UPLOAD_FOLDER'], filename)  # Build input path
@@ -51,7 +51,8 @@ class VistaFiles(Resource):
                 except TimeoutError:
                     proc.kill()
                 print("DONE\n")
-                resp = jsonify({'message': 'File successfully uploaded'})
+                resp = jsonify({'message': os.path.join(
+                    current_app.config['UPLOAD_FOLDER'], filename)})
                 resp.status_code = 201
                 ddir = os.path.join(current_app.root_path,
                                     current_app.config['DOWNLOAD_FOLDER'])
