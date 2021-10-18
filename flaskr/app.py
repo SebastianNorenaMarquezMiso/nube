@@ -5,7 +5,7 @@ from flask_restful import Api
 # from .vistas import VistaFiles
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS, cross_origin
-from vistas import VistaFiles
+from .vistas import VistaFiles
 
 UPLOAD_FOLDER = 'uploaded'
 DOWNLOAD_FOLDER = 'download'
