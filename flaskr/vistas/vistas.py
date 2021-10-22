@@ -94,14 +94,10 @@ class VistaTaskDetail(Resource):
         db.session.commit()
 
         content = requests.put('http://127.0.0.1:5001/update-files',
-                               json={'name': taskJson['name'], 'status': taskJson['status']['llave'],
+                               json={'name': taskJson['name'], 'status': taskJson['status']['llave'], 'taskId': task_id,
                                      'nameFormat': taskJson['nameFormat'], 'newFormat': request.form.get('newFormat')})
 
         if (content.status_code == 201):
-            task.status = "PROCESSED"
-            task.datePr = datetime.datetime.now()
-            task.nameFormat = content.json()['formatFile']
-            db.session.commit()
             return "Task updated", 200
         else:
             return "Tasks not updated", 400

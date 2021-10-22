@@ -1,5 +1,4 @@
 import os
-import subprocess as sp
 import time
 import uuid
 
@@ -17,6 +16,11 @@ app = Celery('tasks', broker='redis://localhost:6379/0')
 
 @app.task(name="tabla.file_conversion")
 def file_conversion(request_json):
+    pass
+
+
+@app.task(name="tabla.file_update")
+def file_update(request_json):
     pass
 
 
@@ -61,12 +65,7 @@ class VistaFiles(Resource):
             args = (json,)
             file_conversion.apply_async(args)
 
-            resp = jsonify({
-                'sourceFile': filename,
-                'formatFile': dfile
-            })
-            resp.status_code = 201
-            return resp
+            return "Task converted", 201
 
         else:
             resp = jsonify(
@@ -93,32 +92,19 @@ class VistaUpdateFiles(Resource):
 
         dfile = '{}.{}'.format(os.path.splitext(name)[0] + str(uuid.uuid4()), str(newFormat))  # Build file name
 
-        inputF = os.path.join(current_app.config['UPLOAD_FOLDER'], name)  # Build input path
-        outputF = os.path.join(current_app.config['DOWNLOAD_FOLDER'], dfile)  # Build output path
+        json = {
+            'creation_date': str(int(time.time())),
+            'filename': name,
+            'dfile': dfile,
+            'taskId': request.json["taskId"],
+            'status': status,
+            'nameFormat': request.json['nameFormat']
+        }
 
-        convertCMD = ['/usr/local/Cellar/ffmpeg/4.4_2/bin/ffmpeg', '-y', '-i', inputF, outputF]
-        executeOrder66 = sp.Popen(convertCMD)
+        args = (json,)
+        file_update.apply_async(args)
 
-        try:
-            outs, errs = executeOrder66.communicate(timeout=10)  # tell program to wait
-        except TimeoutError:
-            proc.kill()
-
-        # Delete previous file
-        if status == "PROCESSED":
-            previousName = request.json['nameFormat']
-            outputF = os.path.join(current_app.config['DOWNLOAD_FOLDER'], previousName)  # Build previous path
-            os.remove(outputF)
-
-        # Build response
-        resp = jsonify({
-            'sourceFile': inputF,
-            'formatFile': dfile
-        })
-        resp.status_code = 201
-        ddir = os.path.join(current_app.root_path, current_app.config['DOWNLOAD_FOLDER'])
-        send_from_directory(directory=ddir, filename=dfile, as_attachment=True)
-        return resp
+        return "Task updated", 201
 
 
 class VistaDeleteFiles(Resource):
