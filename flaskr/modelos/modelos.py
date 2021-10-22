@@ -20,10 +20,11 @@ class User(db.Model):
 
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50))
+    name = db.Column(db.String(200))
     status = db.Column((db.Enum(Status)))
     dateUp = db.Column(db.DateTime())
     datePr = db.Column(db.DateTime())
+    nameFormat = db.Column(db.String(200))
     user = db.Column(db.Integer, db.ForeignKey("user.id"))
     
     
@@ -40,7 +41,8 @@ class UserSchema(SQLAlchemyAutoSchema):
         load_instance = True
         
 class TaskSchema(SQLAlchemyAutoSchema):
+    status = EnumADiccionario(attribute=("status"))
     class Meta:
-        model = User
+        model = Task
         include_relationships = True
         load_instance = True

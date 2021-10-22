@@ -1,4 +1,6 @@
-from flask import request, send_from_directory, current_app
+import io
+
+from flask import request, send_from_directory, current_app, jsonify, make_response, send_file
 import json
 import os
 from flask_restful import Resource, marshal_with, fields
@@ -11,6 +13,7 @@ import subprocess as sp
 import requests
 import datetime
 import asyncio
+from json import dumps
 
 user_schema = UserSchema()
 task_schema = TaskSchema()
@@ -54,10 +57,9 @@ class VistaTasks(Resource):
     @jwt_required()
     def get(self):
         identity = get_jwt_identity()
-        query_string = "select  * from task t where t.user =" + \
-            str(identity)
+        query_string = "select * from task t where t.user =" + str(identity)
         result = db.engine.execute(query_string)
-        return [dict(row) for row in result]
+        return json.loads(json.dumps([dict(row) for row in result], default=myconverter))
 
     @jwt_required()
     def post(self):
@@ -67,20 +69,20 @@ class VistaTasks(Resource):
         sendFile = {"file": (f.filename, f.stream, f.mimetype)}
         values = {'fileType': format}
         ts = datetime.datetime.now()
-        # print(identity)
         new_task = Task(name=f.filename, status="UPLOADED",
-                        dateUp=ts, datePr=ts, user=identity)
+                        dateUp=ts, datePr=ts, nameFormat="", user=identity)
         db.session.add(new_task)
         db.session.commit()
         content = requests.post('http://127.0.0.1:5001/files',
                                 files=sendFile, data=values)
         if(content.status_code == 201):
             task = Task.query.get_or_404(task_schema.dump(new_task)['id'])
-            task.name =  task.name
+            task.name = content.json()['sourceFile']
             task.status = "PROCESSED"
+            task.nameFormat = content.json()['formatFile']
             task.dateUp = task.dateUp
             ts2 = datetime.datetime.now()
-            task.datePr =  ts2
+            task.datePr = ts2
             db.session.commit()
             return "Tasks converted", 200
         else:
@@ -92,20 +94,50 @@ class VistaTaskDetail(Resource):
     @jwt_required()
     def get(self, task_id):
         task = Task.query.get_or_404(task_id)
-        return task_schema.dump(task)
+        return json.loads(json.dumps(task_schema.dump(task), default=myconverter))
 
     @jwt_required()
     def put(self, task_id):
         task = Task.query.get_or_404(task_id)
-        return "Task updated", 200
+        taskJson = json.loads(json.dumps(task_schema.dump(task), default=myconverter))
+
+        task.status = "UPLOADED"
+        task.dateUp = datetime.datetime.now()
+        db.session.commit()
+
+        content = requests.put('http://127.0.0.1:5001/update-files', json={'name': taskJson['name'], 'status': taskJson['status']['llave'], 'nameFormat': taskJson['nameFormat'], 'newFormat': request.form.get('newFormat')})
+
+        if (content.status_code == 201):
+            task.status = "PROCESSED"
+            task.datePr = datetime.datetime.now()
+            task.nameFormat = content.json()['formatFile']
+            db.session.commit()
+            return "Task updated", 200
+        else:
+            return "Tasks not updated", 400
 
     @jwt_required()
-    def delete(self):
-        return "Task deleted", 200
+    def delete(self, task_id):
+        task = Task.query.get_or_404(task_id)
+        taskJson = json.loads(json.dumps(task_schema.dump(task), default=myconverter))
+
+        content = requests.delete('http://127.0.0.1:5001/delete-files', json={'name': taskJson['name'], 'nameFormat': taskJson['nameFormat']})
+
+        if (content.status_code == 200):
+            db.session.delete(task)
+            db.session.commit()
+            return "Task deleted", 200
+        else:
+            return "Tasks not deleted", 400
 
 
 class VistaFileDetail(Resource):
 
     @jwt_required()
     def get(self, file_name):
-        return "File detail", 200
+        content = requests.get('http://127.0.0.1:5001/get-files/' + file_name, stream=True)
+        return send_file(io.BytesIO(content.content), as_attachment=True, attachment_filename=file_name)
+
+def myconverter(o):
+    if isinstance(o, datetime.datetime):
+        return o.__str__()
