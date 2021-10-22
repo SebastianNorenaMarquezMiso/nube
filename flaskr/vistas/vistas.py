@@ -1,19 +1,13 @@
-import io
-
-from flask import request, send_from_directory, current_app, jsonify, make_response, send_file
-import json
-import os
-from flask_restful import Resource, marshal_with, fields
-from sqlalchemy.exc import IntegrityError
-from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
-from flask.json import jsonify
-from werkzeug.utils import secure_filename
-from ..modelos import db, User, Task, UserSchema, TaskSchema
-import subprocess as sp
-import requests
 import datetime
-import asyncio
-from json import dumps
+import io
+import json
+
+import requests
+from flask import request, send_file
+from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
+from flask_restful import Resource
+
+from ..modelos import db, User, Task, UserSchema, TaskSchema
 
 user_schema = UserSchema()
 task_schema = TaskSchema()
@@ -59,7 +53,7 @@ class VistaTasks(Resource):
         identity = get_jwt_identity()
         query_string = "select * from task t where t.user =" + str(identity)
         result = db.engine.execute(query_string)
-        return json.loads(json.dumps([dict(row) for row in result], default=myconverter))
+        return json.loads(json.dumps([dict(row) for row in result], default=myConverter))
 
     @jwt_required()
     def post(self):
@@ -67,26 +61,20 @@ class VistaTasks(Resource):
         f = request.files['file']
         format = request.form.get("newFormat")
         sendFile = {"file": (f.filename, f.stream, f.mimetype)}
-        values = {'fileType': format}
         ts = datetime.datetime.now()
         new_task = Task(name=f.filename, status="UPLOADED",
                         dateUp=ts, datePr=ts, nameFormat="", user=identity)
         db.session.add(new_task)
         db.session.commit()
+
+        values = {'fileType': format, 'taskId': task_schema.dump(new_task)['id']}
+
         content = requests.post('http://127.0.0.1:5001/files',
                                 files=sendFile, data=values)
-        if(content.status_code == 201):
-            task = Task.query.get_or_404(task_schema.dump(new_task)['id'])
-            task.name = content.json()['sourceFile']
-            task.status = "PROCESSED"
-            task.nameFormat = content.json()['formatFile']
-            task.dateUp = task.dateUp
-            ts2 = datetime.datetime.now()
-            task.datePr = ts2
-            db.session.commit()
+        if (content.status_code == 201):
             return "Tasks converted", 200
         else:
-            return "Tasks not converted", 400
+            return content.json(), 400
 
 
 class VistaTaskDetail(Resource):
@@ -94,18 +82,20 @@ class VistaTaskDetail(Resource):
     @jwt_required()
     def get(self, task_id):
         task = Task.query.get_or_404(task_id)
-        return json.loads(json.dumps(task_schema.dump(task), default=myconverter))
+        return json.loads(json.dumps(task_schema.dump(task), default=myConverter))
 
     @jwt_required()
     def put(self, task_id):
         task = Task.query.get_or_404(task_id)
-        taskJson = json.loads(json.dumps(task_schema.dump(task), default=myconverter))
+        taskJson = json.loads(json.dumps(task_schema.dump(task), default=myConverter))
 
         task.status = "UPLOADED"
         task.dateUp = datetime.datetime.now()
         db.session.commit()
 
-        content = requests.put('http://127.0.0.1:5001/update-files', json={'name': taskJson['name'], 'status': taskJson['status']['llave'], 'nameFormat': taskJson['nameFormat'], 'newFormat': request.form.get('newFormat')})
+        content = requests.put('http://127.0.0.1:5001/update-files',
+                               json={'name': taskJson['name'], 'status': taskJson['status']['llave'],
+                                     'nameFormat': taskJson['nameFormat'], 'newFormat': request.form.get('newFormat')})
 
         if (content.status_code == 201):
             task.status = "PROCESSED"
@@ -119,9 +109,10 @@ class VistaTaskDetail(Resource):
     @jwt_required()
     def delete(self, task_id):
         task = Task.query.get_or_404(task_id)
-        taskJson = json.loads(json.dumps(task_schema.dump(task), default=myconverter))
+        taskJson = json.loads(json.dumps(task_schema.dump(task), default=myConverter))
 
-        content = requests.delete('http://127.0.0.1:5001/delete-files', json={'name': taskJson['name'], 'nameFormat': taskJson['nameFormat']})
+        content = requests.delete('http://127.0.0.1:5001/delete-files',
+                                  json={'name': taskJson['name'], 'nameFormat': taskJson['nameFormat']})
 
         if (content.status_code == 200):
             db.session.delete(task)
@@ -138,6 +129,7 @@ class VistaFileDetail(Resource):
         content = requests.get('http://127.0.0.1:5001/get-files/' + file_name, stream=True)
         return send_file(io.BytesIO(content.content), as_attachment=True, attachment_filename=file_name)
 
-def myconverter(o):
+
+def myConverter(o):
     if isinstance(o, datetime.datetime):
         return o.__str__()

@@ -6,7 +6,7 @@ DOWNLOAD_FOLDER = 'download'
 
 def create_app(config_name):
     app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:admin@localhost:5432/andes"
+    app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://jimmy.orjuela:admin@localhost:5432/test"
     app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
     app.config['DOWNLOAD_FOLDER'] = DOWNLOAD_FOLDER
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
