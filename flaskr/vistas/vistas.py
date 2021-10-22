@@ -1,48 +1,20 @@
-from flask import request
+from flask import request, send_from_directory, current_app
 import json
 import os
-from flask_restful import Resource
+from flask_restful import Resource, marshal_with, fields
 from sqlalchemy.exc import IntegrityError
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from flask.json import jsonify
 from werkzeug.utils import secure_filename
+from ..modelos import db, User, Task, UserSchema, TaskSchema
+import subprocess as sp
+import requests
+import datetime
+import asyncio
 
-from flaskr.modelos import db, User, Task
+user_schema = UserSchema()
+task_schema = TaskSchema()
 
-UPLOAD_FOLDER = './uploads'
-ALLOWED_EXTENSIONS = set(['txt'])
-
-
-class VistaFiles(Resource):
-
-    def allowed_file(self, filename):
-        return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-    def post(self):
-        if 'file' not in request.files:
-            resp = jsonify({'message': 'No file part in the request'})
-            resp.status_code = 400
-            return resp
-        file = request.files['file']
-        if file.filename == '':
-            resp = jsonify({'message': 'No file selected for uploading'})
-            resp.status_code = 400
-            return resp
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(UPLOAD_FOLDER))
-            print(file)
-            resp = jsonify({'message': 'File successfully uploaded'})
-            resp.status_code = 201
-            return resp
-        else:
-            resp = jsonify(
-                {'message': 'Allowed file types are txt, pdf, png, jpg, jpeg, gif'})
-            resp.status_code = 400
-            return resp
-
-    def get(self):
-        return 'Funcionando'
 
 class VistaSignIn(Resource):
 
@@ -63,6 +35,7 @@ class VistaSignIn(Resource):
         db.session.commit()
         return '', 204
 
+
 class VistaLogIn(Resource):
 
     def post(self):
@@ -75,32 +48,61 @@ class VistaLogIn(Resource):
             token_de_acceso = create_access_token(identity=user.id)
             return {"message": "Successful login", "token": token_de_acceso}
 
+
 class VistaTasks(Resource):
 
     @jwt_required()
     def get(self):
-        return "Tasks", 200
+        identity = get_jwt_identity()
+        query_string = "select  * from task t where t.user =" + \
+            str(identity)
+        result = db.engine.execute(query_string)
+        return [dict(row) for row in result]
 
     @jwt_required()
     def post(self):
-        # request.json["fileName"]
-        # request.json["newFormat"]
-        return "Tasks converted", 200
+        identity = get_jwt_identity()
+        f = request.files['file']
+        format = request.form.get("newFormat")
+        sendFile = {"file": (f.filename, f.stream, f.mimetype)}
+        values = {'fileType': format}
+        ts = datetime.datetime.now()
+        # print(identity)
+        new_task = Task(name=f.filename, status="UPLOADED",
+                        dateUp=ts, datePr=ts, user=identity)
+        db.session.add(new_task)
+        db.session.commit()
+        content = requests.post('http://127.0.0.1:5001/files',
+                                files=sendFile, data=values)
+        if(content.status_code == 201):
+            task = Task.query.get_or_404(task_schema.dump(new_task)['id'])
+            task.name =  task.name
+            task.status = "PROCESSED"
+            task.dateUp = task.dateUp
+            ts2 = datetime.datetime.now()
+            task.datePr =  ts2
+            db.session.commit()
+            return "Tasks converted", 200
+        else:
+            return "Tasks not converted", 400
+
 
 class VistaTaskDetail(Resource):
 
     @jwt_required()
     def get(self, task_id):
-        return "Task detail", 200
+        task = Task.query.get_or_404(task_id)
+        return task_schema.dump(task)
 
     @jwt_required()
     def put(self, task_id):
-        # request.json["newFormat"]
+        task = Task.query.get_or_404(task_id)
         return "Task updated", 200
 
     @jwt_required()
     def delete(self):
         return "Task deleted", 200
+
 
 class VistaFileDetail(Resource):
 

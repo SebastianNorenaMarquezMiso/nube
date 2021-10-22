@@ -3,7 +3,7 @@ from flask_restful import Api
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS, cross_origin
 from .modelos import db
-from .vistas import VistaSignIn, VistaLogIn, VistaFiles, VistaTasks, VistaTaskDetail, VistaFileDetail
+from .vistas import VistaSignIn, VistaLogIn, VistaTasks, VistaTaskDetail, VistaFileDetail
 
 app = create_app('default')
 app_context = app.app_context()
@@ -15,7 +15,7 @@ cors = CORS(app)
 
 api = Api(app)
 
-api.add_resource(VistaFiles, '/files')
+# api.add_resource(VistaFiles, '/files')
 api.add_resource(VistaSignIn, '/api/auth/signup')
 api.add_resource(VistaLogIn, '/api/auth/login')
 api.add_resource(VistaTasks, '/api/tasks')
