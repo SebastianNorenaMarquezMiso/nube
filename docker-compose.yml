@@ -1,14 +1,67 @@
-version: '3.1'
+version: '3.8'
 services:
-  # ffmpeg:
-  #   container_name: b2c-ffmpeg
-  #   image: jrottenberg/ffmpeg
-  backend:
+  api:
     build:
       context: ./flaskr/
       dockerfile: Dockerfile
     command: 'python app.py'
     ports:
       - 5000:5000
+    depends_on:
+      - redis
+      - postgres
+      - micro_conversion
+  micro_conversion:
+    build:
+      context: ./conversion/flaskr/
+      dockerfile: Dockerfile
+    command:  python app.py 
+    volumes:
+      - ./download/*:/usr/src/app/download/*
+      - ./uploaded/*:/usr/src/app/uploaded/*
+    ports:
+      - 5001:5001
+    depends_on:
+      - redis
+      - postgres
+    hostname: micro_conversion 
+  worker:
+    build:
+      context: ./conversion/flaskr/
+      dockerfile: Dockerfile
+    command: celery worker -B -l info -A tareas
+    depends_on:
+      - redis 
+  postgres:
+      restart: always
+      image: "postgres:11"      
+      container_name: custom_postgres_11
+      environment:
+        - POSTGRES_USER=sebas
+        - POSTGRES_PASSWORD=sebas
+        - POSTGRES_DB=test
+      ports:
+        - '5555:5432'
+      volumes:
+        - ./database:/var/lib/postgresql/data
+      hostname: db 
+
+  redis:
+    image: redis:alpine
+    command: redis-server --appendonly yes
+    hostname: redis 
+    ports:
+      - target: 6379
+        published: 6380
+        protocol: tcp
+        mode: host
+    volumes:
+        - redis_data:/data
+    restart: always
+    environment:
+      - REDIS_REPLICATION_MODE=master
+
 volumes:
+    redis_data:
+    database:
     data_app: {} 

@@ -11,7 +11,7 @@ from ..modelos import Task, TaskSchema
 
 task_schema = TaskSchema()
 
-app = Celery('tasks', broker='redis://localhost:6379/0')
+app = Celery('tasks', broker='redis://redis:6379/0')
 
 
 @app.task(name="tabla.file_conversion")
@@ -28,7 +28,7 @@ def file_conversion(request_json):
     # Ffmpeg is flexible enough to handle wildstar conversions
     # convertCMD = ['ffmpeg', '-y', '-i', inputF, outputF]
     # convertCMD = ['/usr/bin/ffmpeg', '-y', '-i', inputF, outputF]
-    convertCMD = ['/usr/local/Cellar/ffmpeg/4.4_2/bin/ffmpeg', '-y', '-i', inputF, outputF]
+    convertCMD = ['ffmpeg', '-y', '-i', inputF, outputF]
     executeOrder66 = sp.Popen(convertCMD)
 
     try:
@@ -59,7 +59,7 @@ def file_update(request_json):
     # Ffmpeg is flexible enough to handle wildstar conversions
     # convertCMD = ['ffmpeg', '-y', '-i', inputF, outputF]
     # convertCMD = ['/usr/bin/ffmpeg', '-y', '-i', inputF, outputF]
-    convertCMD = ['/usr/local/Cellar/ffmpeg/4.4_2/bin/ffmpeg', '-y', '-i', inputF, outputF]
+    convertCMD = ['ffmpeg', '-y', '-i', inputF, outputF]
     executeOrder66 = sp.Popen(convertCMD)
 
     try:

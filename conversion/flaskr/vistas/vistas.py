@@ -11,7 +11,7 @@ from werkzeug.utils import secure_filename
 FFMPEG_BIN = "ffmpeg.exe"
 ALLOWED_EXTENSIONS = set(['mp3', 'wav', 'ogg', 'aac', 'wma'])
 
-app = Celery('tasks', broker='redis://localhost:6379/0')
+app = Celery('tasks', broker='redis://redis:6379/0')
 
 
 @app.task(name="tabla.file_conversion")
@@ -28,45 +28,45 @@ class VistaFiles(Resource):
 
     def post(self):
         if 'file' not in request.files:
-            resp = jsonify({'message': 'No file part in the request'})
+            resp = jsonify({'message': 'No file part in the request'}) 
             resp.status_code = 400
             return resp
-
         if 'fileType' not in request.form:
             resp = jsonify({'message': 'No newFormat part in the request'})
             resp.status_code = 400
             return resp
-
         file = request.files['file']
 
         if file.filename == '':
             resp = jsonify({'message': 'No file selected for uploading'})
             resp.status_code = 400
             return resp
-
         if file and allowed_file(file.filename):
             format = request.form.get("fileType")
-
+            print("1")
             filename = secure_filename(file.filename)
             filename = '{}.{}'.format(os.path.splitext(filename)[0] + str(uuid.uuid4()),
                                       os.path.splitext(filename)[1])  # Build input name
+            print("2")
+            print(current_app.config)
             file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
+            print("3")
             uuidSelected = uuid.uuid4()
             dfile = '{}.{}'.format(os.path.splitext(filename)[
                                        0] + str(uuidSelected), str(format))  # Build file name
-
+            print("3")
             json = {
                 'creation_date': str(int(time.time())),
                 'filename': filename,
                 'dfile': dfile,
                 'taskId': request.form.get("taskId")
             }
-
+            print("3")
             args = (json,)
             file_conversion.apply_async(args)
-
+            print("pase")
             return "Task converted", 201
-
+        
         else:
             resp = jsonify(
                 {'message': 'Allowed file types are mp3, wav, ogg ,aac ,wma'})
@@ -127,3 +127,7 @@ class VistaDeleteFiles(Resource):
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+class VistaTest(Resource):
+    def get(self):
+        return "funcionando"
