@@ -1,8 +1,7 @@
 from flask import Flask
 
-UPLOAD_FOLDER = 'uploaded'
-DOWNLOAD_FOLDER = 'download'
 
+<<<<<<< HEAD
 
 def create_app(config_name):
     app = Flask(__name__)
@@ -14,3 +13,5 @@ def create_app(config_name):
     app.config['JWT_SECRET_KEY'] = 'frase-secreta'
     app.config['PROPAGATE_EXCEPTIONS'] = True
     return app
+=======
+>>>>>>> 4e1abdc639f9469defe552ecd8cc2c6df628faee
