@@ -11,6 +11,14 @@ services:
       - redis
       - postgres
       - micro_conversion
+  worker:
+    build:
+      context: ./conversion/flaskr/
+      dockerfile: Dockerfile
+    command: celery -A tareas worker --loglevel=info
+    depends_on:
+      - redis 
+      - postgres
   micro_conversion:
     build:
       context: ./conversion/flaskr/
@@ -25,13 +33,7 @@ services:
       - redis
       - postgres
     hostname: micro_conversion 
-  worker:
-    build:
-      context: ./conversion/flaskr/
-      dockerfile: Dockerfile
-    command: celery worker -B -l info -A tareas
-    depends_on:
-      - redis 
+  
   postgres:
       restart: always
       image: "postgres:11"      
