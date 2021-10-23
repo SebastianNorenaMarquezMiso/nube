@@ -7,7 +7,7 @@ from flask import request, send_file
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from flask_restful import Resource
 
-from ..modelos import db, User, Task, UserSchema, TaskSchema
+from modelos import db, User, Task, UserSchema, TaskSchema
 
 user_schema = UserSchema()
 task_schema = TaskSchema()

@@ -3,20 +3,17 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_restful import Api
 
-<<<<<<< HEAD
-from flaskr.app import create_app
-=======
 # from flaskr import create_app
->>>>>>> 4e1abdc639f9469defe552ecd8cc2c6df628faee
-from .modelos import db
-from .vistas import VistaSignIn, VistaLogIn, VistaTasks, VistaTaskDetail, VistaFileDetail
+
+from modelos import db
+from vistas import VistaSignIn, VistaLogIn, VistaTasks, VistaTaskDetail, VistaFileDetail
 UPLOAD_FOLDER = 'uploaded'
 DOWNLOAD_FOLDER = 'download'
 
 
 def create_app(config_name):
     app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://jimmy.orjuela:admin@localhost:5432/test"
+    app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:admin@localhost:5432/test"
     app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
     app.config['DOWNLOAD_FOLDER'] = DOWNLOAD_FOLDER
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
