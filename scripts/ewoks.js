@@ -16,7 +16,7 @@ export let options = {
 let binFile = open('./rauw.mp3', 'b');
 
 let token = '';
-let apiUrl = 'http://172.21.0.1:5000';
+let apiUrl = 'http://172.19.0.4:5000';
 
 export function setup() {
   let data = {
