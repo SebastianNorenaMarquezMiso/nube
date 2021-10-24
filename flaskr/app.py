@@ -27,7 +27,7 @@ app_context = app.app_context()
 app_context.push()
 
 db.init_app(app)
-#db.create_all()
+db.create_all()
 cors = CORS(app)
 
 api = Api(app)
