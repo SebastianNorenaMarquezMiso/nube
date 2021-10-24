@@ -23,7 +23,12 @@ export function setup() {
     "username": "Pepito",
     "password": "1234"
   };
-  let response = http.post(apiUrl + '/api/auth/login', JSON.stringify(data));
+  let params = {
+    headers: {
+      "Content-Type": "application/json;",
+    }
+  }
+  let response = http.post(apiUrl + '/api/auth/login', JSON.stringify(data), params);
 
   let checkRes = check(response, {
     "Token Request status is 200": (r) => r.status === 200,
