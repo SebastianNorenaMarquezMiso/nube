@@ -15,23 +15,39 @@ services:
     build:
       context: ./conversion/flaskr/
       dockerfile: Dockerfile
-    command:  python app.py 
+    command:  python app.py
     volumes:
-      - ./download/*:/usr/src/app/download/*
-      - ./uploaded/*:/usr/src/app/uploaded/*
+      - ./download/:/usr/src/app/download/
+      - ./uploaded/:/usr/src/app/uploaded/
     ports:
       - 5001:5001
     depends_on:
       - redis
       - postgres
-    hostname: micro_conversion 
+    hostname: micro_conversion
+
+  redis:
+    container_name: redis
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
   worker:
     build:
       context: ./conversion/flaskr/
       dockerfile: Dockerfile
-    command: celery worker -B -l info -A tareas
+    command: celery -A tareas worker -l INFO -P solo
+    volumes:
+      - ./download/:/usr/src/app/download/
+      - ./uploaded/:/usr/src/app/uploaded/
+    environment:
+      CELERY_BROKER_URL: redis://redis
+      CELERY_RESULT_BACKEND: redis://redis
+    links:
+      - redis
     depends_on:
-      - redis 
+      - redis
+
   postgres:
       restart: always
       image: "postgres:11"      
@@ -44,22 +60,7 @@ services:
         - '5555:5432'
       volumes:
         - ./database:/var/lib/postgresql/data
-      hostname: db 
-
-  redis:
-    image: redis:alpine
-    command: redis-server --appendonly yes
-    hostname: redis 
-    ports:
-      - target: 6379
-        published: 6380
-        protocol: tcp
-        mode: host
-    volumes:
-        - redis_data:/data
-    restart: always
-    environment:
-      - REDIS_REPLICATION_MODE=master
+      hostname: db
 
 volumes:
     redis_data:

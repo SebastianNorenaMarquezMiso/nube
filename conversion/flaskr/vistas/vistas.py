@@ -10,8 +10,9 @@ from werkzeug.utils import secure_filename
 
 FFMPEG_BIN = "ffmpeg.exe"
 ALLOWED_EXTENSIONS = set(['mp3', 'wav', 'ogg', 'aac', 'wma'])
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379'),
 
-app = Celery('tasks', broker='redis://redis:6379/0')
+app = Celery('tasks', broker=CELERY_BROKER_URL)
 
 
 @app.task(name="tabla.file_conversion")
@@ -43,28 +44,23 @@ class VistaFiles(Resource):
             return resp
         if file and allowed_file(file.filename):
             format = request.form.get("fileType")
-            print("1")
             filename = secure_filename(file.filename)
             filename = '{}.{}'.format(os.path.splitext(filename)[0] + str(uuid.uuid4()),
                                       os.path.splitext(filename)[1])  # Build input name
-            print("2")
-            print(current_app.config)
+
             file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
-            print("3")
             uuidSelected = uuid.uuid4()
             dfile = '{}.{}'.format(os.path.splitext(filename)[
                                        0] + str(uuidSelected), str(format))  # Build file name
-            print("3")
             json = {
                 'creation_date': str(int(time.time())),
                 'filename': filename,
                 'dfile': dfile,
                 'taskId': request.form.get("taskId")
             }
-            print("3")
+
             args = (json,)
             file_conversion.apply_async(args)
-            print("pase")
             return "Task converted", 201
         
         else:
@@ -77,7 +73,8 @@ class VistaFiles(Resource):
 class VistaGetFiles(Resource):
     def get(self, filename):
         try:
-            return send_from_directory(current_app.config["UPLOAD_FOLDER"], filename=filename, as_attachment=True)
+            print(os.path.join(os.path.dirname(__file__).replace("vistas", "") + current_app.config['DOWNLOAD_FOLDER']))
+            return send_from_directory(current_app.config["DOWNLOAD_FOLDER"], filename=filename, as_attachment=True)
         except FileNotFoundError:
             abort(404)
 

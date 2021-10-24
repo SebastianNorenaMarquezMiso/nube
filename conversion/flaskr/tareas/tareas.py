@@ -6,12 +6,15 @@ from celery import Celery
 from celery.signals import task_postrun
 from flask import current_app
 
-from ..app import db
-from ..modelos import Task, TaskSchema
+from app import db
+from modelos import Task, TaskSchema
 
 task_schema = TaskSchema()
 
-app = Celery('tasks', broker='redis://redis:6379/0')
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379'),
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://localhost:6379')
+
+app = Celery('tasks', broker=CELERY_BROKER_URL, backend=CELERY_RESULT_BACKEND)
 
 
 @app.task(name="tabla.file_conversion")
@@ -27,8 +30,8 @@ def file_conversion(request_json):
 
     # Ffmpeg is flexible enough to handle wildstar conversions
     # convertCMD = ['ffmpeg', '-y', '-i', inputF, outputF]
-    # convertCMD = ['/usr/bin/ffmpeg', '-y', '-i', inputF, outputF]
-    convertCMD = ['ffmpeg', '-y', '-i', inputF, outputF]
+    convertCMD = ['/usr/bin/ffmpeg', '-y', '-i', inputF, outputF]
+    # convertCMD = ['ffmpeg', '-y', '-i', inputF, outputF]
     executeOrder66 = sp.Popen(convertCMD)
 
     try:
@@ -58,12 +61,12 @@ def file_update(request_json):
 
     # Ffmpeg is flexible enough to handle wildstar conversions
     # convertCMD = ['ffmpeg', '-y', '-i', inputF, outputF]
-    # convertCMD = ['/usr/bin/ffmpeg', '-y', '-i', inputF, outputF]
-    convertCMD = ['ffmpeg', '-y', '-i', inputF, outputF]
+    convertCMD = ['/usr/bin/ffmpeg', '-y', '-i', inputF, outputF]
+    # convertCMD = ['ffmpeg', '-y', '-i', inputF, outputF]
     executeOrder66 = sp.Popen(convertCMD)
 
     try:
-        outs, errs = executeOrder66.communicate(timeout=10)  # tell program to wait
+        outs, errs = executeOrder66.communicate(timeout=20)  # tell program to wait
     except TimeoutError:
         proc.kill()
 

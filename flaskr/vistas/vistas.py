@@ -122,7 +122,7 @@ class VistaFileDetail(Resource):
 
     @jwt_required()
     def get(self, file_name):
-        content = requests.get('http://micro_conversion:5001/get-files' + file_name, stream=True)
+        content = requests.get('http://micro_conversion:5001/get-files/' + file_name, stream=True)
         return send_file(io.BytesIO(content.content), as_attachment=True, attachment_filename=file_name)
 
 
