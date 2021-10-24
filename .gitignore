@@ -150,3 +150,6 @@ test.db
 /.idea
 /flaskr/.idea/*
 /flaskr/.DS_Store
+
+/uploaded/*
+/download/*
