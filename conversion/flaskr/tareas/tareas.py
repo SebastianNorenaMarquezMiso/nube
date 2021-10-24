@@ -20,20 +20,21 @@ app = Celery('tasks', broker=CELERY_BROKER_URL, backend=CELERY_RESULT_BACKEND)
 @app.task(name="tabla.file_conversion")
 def file_conversion(request_json):
     # Build input path and add file
+    print("1")
     inputF = os.path.join(
         os.path.dirname(__file__).replace("tareas", "") + current_app.config['UPLOAD_FOLDER'],
         request_json["filename"])
-
+    print("2")
     # Build output path and add file
     outputF = os.path.join(
         os.path.dirname(__file__).replace("tareas", "") + current_app.config['DOWNLOAD_FOLDER'], request_json["dfile"])
-
+ 
     # Ffmpeg is flexible enough to handle wildstar conversions
     # convertCMD = ['ffmpeg', '-y', '-i', inputF, outputF]
     convertCMD = ['/usr/bin/ffmpeg', '-y', '-i', inputF, outputF]
     # convertCMD = ['ffmpeg', '-y', '-i', inputF, outputF]
     executeOrder66 = sp.Popen(convertCMD)
-
+    print("5")
     try:
         outs, errs = executeOrder66.communicate(
             timeout=10)  # tell program to wait
