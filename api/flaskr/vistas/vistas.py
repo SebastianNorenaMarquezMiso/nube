@@ -69,7 +69,7 @@ class VistaTasks(Resource):
 
         values = {'fileType': format, 'taskId': task_schema.dump(new_task)['id']}
 
-        content = requests.post(' http://ec2-3-93-36-145.compute-1.amazonaws.com/files',
+        content = requests.post(' http://3.93.36.145/files',
                                 files=sendFile, data=values)
         if (content.status_code == 201):
             return "Tasks converted", 200
@@ -93,7 +93,7 @@ class VistaTaskDetail(Resource):
         task.dateUp = datetime.datetime.now()
         db.session.commit()
 
-        content = requests.put('http://ec2-3-93-36-145.compute-1.amazonaws.com/update-files',
+        content = requests.put('http://3.93.36.145/update-files',
                                json={'name': taskJson['name'], 'status': taskJson['status']['llave'], 'taskId': task_id,
                                      'nameFormat': taskJson['nameFormat'], 'newFormat': request.form.get('newFormat')})
 
@@ -107,7 +107,7 @@ class VistaTaskDetail(Resource):
         task = Task.query.get_or_404(task_id)
         taskJson = json.loads(json.dumps(task_schema.dump(task), default=myConverter))
 
-        content = requests.delete('http://ec2-3-93-36-145.compute-1.amazonaws.com/delete-files',
+        content = requests.delete('http://3.93.36.145/delete-files',
                                   json={'name': taskJson['name'], 'nameFormat': taskJson['nameFormat']})
 
         if (content.status_code == 200):
@@ -122,7 +122,7 @@ class VistaFileDetail(Resource):
 
     @jwt_required()
     def get(self, file_name):
-        content = requests.get('http://ec2-3-93-36-145.compute-1.amazonaws.com/get-files/' + file_name, stream=True)
+        content = requests.get('http://3.93.36.145/get-files/' + file_name, stream=True)
         return send_file(io.BytesIO(content.content), as_attachment=True, attachment_filename=file_name)
 
 
