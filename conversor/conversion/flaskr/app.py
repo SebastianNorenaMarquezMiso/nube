@@ -16,7 +16,7 @@ celery = Celery(__name__, broker=CELERY_BROKER_URL)
 
 def create_app(config_name):
     app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://sebas:sebas@postgres:5432/test"
+    app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:uniandes@db-0001.cexmvypaid2k.us-east-1.rds.amazonaws.com:5432/postgres"
     app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
     app.config['DOWNLOAD_FOLDER'] = DOWNLOAD_FOLDER
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024

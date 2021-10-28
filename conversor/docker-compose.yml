@@ -1,0 +1,40 @@
+version: '3.8'
+services:
+  micro_conversion:
+    build:
+      context: ./conversion/flaskr/
+      dockerfile: Dockerfile
+    command:  python app.py
+    volumes:
+      - ./download/:/usr/src/app/download/
+      - ./uploaded/:/usr/src/app/uploaded/
+    ports:
+      - 5001:5001
+    depends_on:
+      - redis
+    hostname: micro_conversion
+
+  redis:
+    container_name: redis
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+  worker:
+    build:
+      context: ./conversion/flaskr/
+      dockerfile: Dockerfile
+    command: celery -A tareas worker -l INFO -P solo
+    volumes:
+      - ./download/:/usr/src/app/download/
+      - ./uploaded/:/usr/src/app/uploaded/
+    environment:
+      CELERY_BROKER_URL: redis://redis
+      CELERY_RESULT_BACKEND: redis://redis
+    links:
+      - redis
+    depends_on:
+      - redis
+volumes:
+    redis_data:
+    data_app: {} 
