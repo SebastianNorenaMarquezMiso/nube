@@ -69,7 +69,7 @@ class VistaTasks(Resource):
 
         values = {'fileType': format, 'taskId': task_schema.dump(new_task)['id']}
 
-        content = requests.post(' http://3.237.51.159/files',
+        content = requests.post(' http://35.170.55.198/files',
                                 files=sendFile, data=values)
         if (content.status_code == 201):
             return "Tasks converted", 200
@@ -93,7 +93,7 @@ class VistaTaskDetail(Resource):
         task.dateUp = datetime.datetime.now()
         db.session.commit()
 
-        content = requests.put('http://3.237.51.159/update-files',
+        content = requests.put('http://35.170.55.198/update-files',
                                json={'name': taskJson['name'], 'status': taskJson['status']['llave'], 'taskId': task_id,
                                      'nameFormat': taskJson['nameFormat'], 'newFormat': request.form.get('newFormat')})
 
@@ -107,7 +107,7 @@ class VistaTaskDetail(Resource):
         task = Task.query.get_or_404(task_id)
         taskJson = json.loads(json.dumps(task_schema.dump(task), default=myConverter))
 
-        content = requests.delete('http://3.237.51.159/delete-files',
+        content = requests.delete('http://35.170.55.198/delete-files',
                                   json={'name': taskJson['name'], 'nameFormat': taskJson['nameFormat']})
 
         if (content.status_code == 200):
@@ -122,7 +122,7 @@ class VistaFileDetail(Resource):
 
     @jwt_required()
     def get(self, file_name):
-        content = requests.get('http://3.237.51.159/get-files/' + file_name, stream=True)
+        content = requests.get('http://35.170.55.198/get-files/' + file_name, stream=True)
         return send_file(io.BytesIO(content.content), as_attachment=True, attachment_filename=file_name)
 
 
