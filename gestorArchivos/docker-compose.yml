@@ -5,6 +5,10 @@ services:
       context: ./api/
       dockerfile: Dockerfile
     command: 'python app.py'
+    environment:
+      AWS_ACCESS_KEY_ID: ASIA3I2TQPFIWOWZUU65
+      AWS_SECRET_ACCESS_KEY_ID: yWHmBEz6I5JBsxuHJE+U5scVwl5q2jExujoyStZx
+      AWS_SESSION_TOKEN: FwoGZXIvYXdzEFAaDG+RzJMYL31cSYczWiLKAelDTE2sBMeDthahPLi8JpK6FwOSESZTAFaX6GezhutXyqBOqbeiT1JPBUaZKmlFJ+UBo2HkBhC/Z/kWr2TBDzcfyORh2Btg1PEXPx+rzdsN7UNpOjQEMHH1bAG6+TDYOo3lIRELC1yoM2BByGoZ0eTkJnCKf2pAe+6lXcZMGnVH8xt3o4oc5llaHjyuZAIetR+WzTS/y8Vmnn3wzwwFFGPFRfJwDDaEvXnVriA7hBChMbB0L4ooHydR1bcfPdJ+XJxo2WvHCFP+I3Aokbr1iwYyLTdKD82GV49YtiNPv8tU3gUGYaBrhh2uRCIKsrcN9DlotqauC+An/uzjA3jOng==
     ports:
       - 81:81
       
