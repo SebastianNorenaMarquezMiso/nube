@@ -5,6 +5,7 @@ services:
       context: ./flaskr/
       dockerfile: Dockerfile
     command: 'python app.py'
+    environment:
+      URL_CONVERSOR: http://c34e-190-251-193-251.ngrok.io
     ports:
       - 8080:8080
-      

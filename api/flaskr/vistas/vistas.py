@@ -1,7 +1,7 @@
 import datetime
 import io
 import json
-
+import os
 import requests
 from flask import request, send_file
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
@@ -69,7 +69,7 @@ class VistaTasks(Resource):
 
         values = {'fileType': format, 'taskId': task_schema.dump(new_task)['id']}
 
-        content = requests.post('http://db36-190-251-193-251.ngrok.io/files',
+        content = requests.post(os.getenv('URL_CONVERSOR')+'/files',
                                 files=sendFile, data=values)
         if (content.status_code == 201):
             return "Tasks converted", 200
@@ -92,8 +92,7 @@ class VistaTaskDetail(Resource):
         task.status = "UPLOADED"
         task.dateUp = datetime.datetime.now()
         db.session.commit()
-
-        content = requests.put('http://db36-190-251-193-251.ngrok.io/update-files',
+        content = requests.put(os.getenv('URL_CONVERSOR') +'/update-files',
                                json={'name': taskJson['name'], 'status': taskJson['status']['llave'], 'taskId': task_id,
                                      'nameFormat': taskJson['nameFormat'], 'newFormat': request.form.get('newFormat')})
 
@@ -107,7 +106,7 @@ class VistaTaskDetail(Resource):
         task = Task.query.get_or_404(task_id)
         taskJson = json.loads(json.dumps(task_schema.dump(task), default=myConverter))
 
-        content = requests.delete('http://db36-190-251-193-251.ngrok.io/delete-files',
+        content = requests.delete(os.getenv('URL_CONVERSOR')+'/delete-files',
                                   json={'name': taskJson['name'], 'nameFormat': taskJson['nameFormat']})
 
         if (content.status_code == 200):
@@ -122,7 +121,7 @@ class VistaFileDetail(Resource):
 
     @jwt_required()
     def get(self, file_name):
-        content = requests.get('http://db36-190-251-193-251.ngrok.io/get-files/' + file_name, stream=True)
+        content = requests.get(os.getenv('URL_CONVERSOR')+'/get-files/' + file_name, stream=True)
         return send_file(io.BytesIO(content.content), as_attachment=True, attachment_filename=file_name)
 
 

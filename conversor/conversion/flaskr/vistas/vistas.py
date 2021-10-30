@@ -50,7 +50,7 @@ class VistaFiles(Resource):
 
             #file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
             sendFile = {"file": (file.filename, file.stream, file.mimetype)}
-            requests.post('http://29f7-190-251-193-251.ngrok.io/upload',
+            requests.post(os.getenv('URL_ARCHIVOS')+'/upload',
                                 files=sendFile)
             uuidSelected = uuid.uuid4()
             dfile = '{}.{}'.format(os.path.splitext(filename)[
@@ -77,7 +77,7 @@ class VistaGetFiles(Resource):
     def get(self, filename):
         try:
             #print(os.path.join(os.path.dirname(__file__).replace("vistas", "") + current_app.config['DOWNLOAD_FOLDER']))
-            content = requests.get('http://29f7-190-251-193-251.ngrok.io/upload/' + filename, stream=True)
+            content = requests.get(os.getenv('URL_ARCHIVOS')+'/upload/' + filename, stream=True)
             return send_file(io.BytesIO(content.content), as_attachment=True, attachment_filename=filename)
         except FileNotFoundError:
             abort(404)
