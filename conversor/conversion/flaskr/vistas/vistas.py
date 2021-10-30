@@ -1,13 +1,13 @@
 import os
 import time
 import uuid
-
+import io
 from celery import Celery
-from flask import request, send_from_directory, current_app
+from flask import request, send_from_directory, current_app , send_file
 from flask.json import jsonify
 from flask_restful import Resource
 from werkzeug.utils import secure_filename
-
+import requests
 FFMPEG_BIN = "ffmpeg.exe"
 ALLOWED_EXTENSIONS = set(['mp3', 'wav', 'ogg', 'aac', 'wma'])
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379'),
@@ -50,7 +50,7 @@ class VistaFiles(Resource):
 
             #file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
             sendFile = {"file": (file.filename, file.stream, file.mimetype)}
-            requests.post(' http://35.170.55.198/upload',
+            requests.post('http://29f7-190-251-193-251.ngrok.io/upload',
                                 files=sendFile)
             uuidSelected = uuid.uuid4()
             dfile = '{}.{}'.format(os.path.splitext(filename)[
@@ -76,8 +76,9 @@ class VistaFiles(Resource):
 class VistaGetFiles(Resource):
     def get(self, filename):
         try:
-            print(os.path.join(os.path.dirname(__file__).replace("vistas", "") + current_app.config['DOWNLOAD_FOLDER']))
-            return send_from_directory(current_app.config["DOWNLOAD_FOLDER"], filename=filename, as_attachment=True)
+            #print(os.path.join(os.path.dirname(__file__).replace("vistas", "") + current_app.config['DOWNLOAD_FOLDER']))
+            content = requests.get('http://29f7-190-251-193-251.ngrok.io/upload/' + filename, stream=True)
+            return send_file(io.BytesIO(content.content), as_attachment=True, attachment_filename=filename)
         except FileNotFoundError:
             abort(404)
 

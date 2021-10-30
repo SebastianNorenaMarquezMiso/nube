@@ -24,7 +24,7 @@ services:
     build:
       context: ./conversion/flaskr/
       dockerfile: Dockerfile
-    command: celery -A tareas worker -l INFO -Ofair
+    command: celery -A tareas worker -l INFO -P 
     volumes:
       - ./download/:/usr/src/app/download/
       - ./uploaded/:/usr/src/app/uploaded/

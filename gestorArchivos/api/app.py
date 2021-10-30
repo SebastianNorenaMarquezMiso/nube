@@ -33,8 +33,7 @@ def postDownload():
 @app.route("/download/<filename>", methods=['GET'])
 def getDownload(filename):
     if request.method == 'GET':
-        output = download_file(filename, BUCKET)
-        return send_file('downloads',output, as_attachment=True)
+        return download_file('uploads' ,filename, BUCKET)
 
 
 
