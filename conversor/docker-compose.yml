@@ -38,3 +38,5 @@ services:
 volumes:
     redis_data:
     data_app: {} 
+#- HTTPS_PROXY=http://connect2.virtual.uniandes.edu.co:443
+#- HTTP_PROXY=http://connect2.virtual.uniandes.edu.co:443

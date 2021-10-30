@@ -1,0 +1,10 @@
+version: '3.8'
+services:
+  api:
+    build:
+      context: ./api/
+      dockerfile: Dockerfile
+    command: 'python app.py'
+    ports:
+      - 81:81
+      
