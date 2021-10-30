@@ -48,7 +48,10 @@ class VistaFiles(Resource):
             filename = '{}.{}'.format(os.path.splitext(filename)[0] + str(uuid.uuid4()),
                                       os.path.splitext(filename)[1])  # Build input name
 
-            file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
+            #file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
+            sendFile = {"file": (file.filename, file.stream, file.mimetype)}
+            requests.post(' http://35.170.55.198/upload',
+                                files=sendFile)
             uuidSelected = uuid.uuid4()
             dfile = '{}.{}'.format(os.path.splitext(filename)[
                                        0] + str(uuidSelected), str(format))  # Build file name
