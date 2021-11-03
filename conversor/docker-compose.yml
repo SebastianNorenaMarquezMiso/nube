@@ -9,7 +9,7 @@ services:
       - ./download/:/usr/src/app/download/
       - ./uploaded/:/usr/src/app/uploaded/
     environment:
-      URL_ARCHIVOS: http://efe7-2800-e2-900-c54-549d-194d-343d-c04a.ngrok.io
+      URL_ARCHIVOS: http://34d0-179-32-133-175.ngrok.io
     ports:
       - 8081:8081
     depends_on:
@@ -29,10 +29,11 @@ services:
     command: celery -A tareas worker -l INFO -P solo
     volumes:
       - ./download/:/usr/src/app/download/
-      - ./uploaded/:/usr/src/app/uploaded/s
+      - ./uploaded/:/usr/src/app/uploaded/
     environment:
       CELERY_BROKER_URL: redis://redis
       CELERY_RESULT_BACKEND: redis://redis
+      URL_ARCHIVOS: http://34d0-179-32-133-175.ngrok.io
     links:
       - redis
     depends_on:

@@ -8,6 +8,7 @@ from flask import current_app
 
 from app import db
 from modelos import Task, TaskSchema
+import requests
 
 task_schema = TaskSchema()
 
@@ -20,12 +21,14 @@ app = Celery('tasks', broker=CELERY_BROKER_URL, backend=CELERY_RESULT_BACKEND)
 @app.task(name="tabla.file_conversion")
 def file_conversion(request_json):
     # Build input path and add file
-    inputF = os.path.join(
-        os.path.dirname(__file__).replace("tareas", "") + current_app.config['UPLOAD_FOLDER'],
-        request_json["filename"])
+    # inputF = os.path.join(
+    #     os.path.dirname(__file__).replace("tareas", "") + current_app.config['UPLOAD_FOLDER'],
+    #     request_json["filename"])
     # Build output path and add file
     outputF = os.path.join(
-        os.path.dirname(__file__).replace("tareas", "") + current_app.config['DOWNLOAD_FOLDER'], request_json["dfile"])
+         os.path.dirname(__file__).replace("tareas", "") + current_app.config['DOWNLOAD_FOLDER'], request_json["dfile"])
+    inputF=os.getenv('URL_ARCHIVOS')+'/upload/' + request_json["filename"]
+
  
     # Ffmpeg is flexible enough to handle wildstar conversions
     # convertCMD = ['ffmpeg', '-y', '-i', inputF, outputF]
@@ -39,7 +42,27 @@ def file_conversion(request_json):
         proc.kill()
 
     print("DONE\n")
-
+    #send download file to s3 and delete from local
+    #upload file
+    fileUp = open(os.path.join(
+         os.path.dirname(__file__).replace("tareas", "") + current_app.config['DOWNLOAD_FOLDER'], request_json["filename"]), "rb")
+    sendFileUp = {"file": fileUp}
+    requests.post(os.getenv('URL_ARCHIVOS')+'/upload',
+                                files=sendFileUp)
+    os.remove(os.path.join(
+         os.path.dirname(__file__).replace("tareas", "") + current_app.config['DOWNLOAD_FOLDER'], request_json["filename"]))
+    
+    #download file
+    file = open(os.path.join(
+         os.path.dirname(__file__).replace("tareas", "") + current_app.config['DOWNLOAD_FOLDER'], request_json["dfile"]), "rb")
+    sendFile = {"file": file}
+    
+    requests.post(os.getenv('URL_ARCHIVOS')+'/download',
+                                files=sendFile)
+    outputFormat = os.path.join(current_app.config['DOWNLOAD_FOLDER'],
+                                    request_json["dfile"])  # Build previous format name path
+    os.remove(outputF)
+    # Update DB
     task = Task.query.get_or_404(request_json["taskId"])
     task.name = request_json["filename"]
     task.status = "PROCESSED"
@@ -52,8 +75,7 @@ def file_conversion(request_json):
 
 @app.task(name="tabla.file_update")
 def file_update(request_json):
-    inputF = os.path.join(os.path.dirname(__file__).replace("tareas", "") + current_app.config['UPLOAD_FOLDER'],
-                          request_json["filename"])  # Build input path
+    inputF=os.getenv('URL_ARCHIVOS')+'/upload/' + request_json["filename"]  # Build input path
     outputF = os.path.join(os.path.dirname(__file__).replace("tareas", "") + current_app.config['DOWNLOAD_FOLDER'],
                            request_json["dfile"])  # Build output path
 
@@ -71,8 +93,19 @@ def file_update(request_json):
     # Delete previous file
     if request_json["status"] == "PROCESSED":
         previousName = request_json['nameFormat']
-        outputF = os.path.join(os.path.dirname(__file__).replace("tareas", "") + current_app.config['DOWNLOAD_FOLDER'],
-                               previousName)  # Build previous path
+        # outputF = os.path.join(os.path.dirname(__file__).replace("tareas", "") + current_app.config['DOWNLOAD_FOLDER'],
+        #                        previousName)  # Build previous path
+        # os.remove(outputF)
+        
+        #send download file to s3 and delete from local
+    
+        file = open(os.path.join(
+            os.path.dirname(__file__).replace("tareas", "") + current_app.config['DOWNLOAD_FOLDER'], request_json["dfile"]), "rb")
+        sendFile = {"file": file}
+        requests.post(os.getenv('URL_ARCHIVOS')+'/download',
+                                    files=sendFile)
+        outputFormat = os.path.join(current_app.config['DOWNLOAD_FOLDER'],
+                                        request_json["dfile"])  # Build previous format name path
         os.remove(outputF)
 
     print("DONE\n")

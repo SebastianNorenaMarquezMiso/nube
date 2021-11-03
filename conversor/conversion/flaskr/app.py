@@ -22,6 +22,7 @@ def create_app(config_name):
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
     app.config['JWT_SECRET_KEY']='frase-secreta'
     app.config['PROPAGATE_EXCEPTIONS'] = True
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     return app
 
 app = create_app('default')
