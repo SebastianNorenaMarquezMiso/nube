@@ -9,7 +9,7 @@ services:
       - ./download/:/usr/src/app/download/
       - ./uploaded/:/usr/src/app/uploaded/
     environment:
-      URL_ARCHIVOS: http://c9b3-190-251-193-251.ngrok.io
+      URL_ARCHIVOS:  http://0035-190-251-193-251.ngrok.io
     ports:
       - 8081:8081
     depends_on:
@@ -18,25 +18,26 @@ services:
 
   redis:
     container_name: redis
-    image: redis:alpine
+    image: redis:6-alpine
     ports:
       - "6379:6379"
 
   worker:
     build:
-      context: ./conversion/flaskr/
-      dockerfile: Dockerfile
+      context: ./conversion/flaskr
     entrypoint: ["/bin/sh","-c"]
     command:
-      - celery -A tareas worker --pool=prefork --concurrency=4 --loglevel=info
-      #-  celery multi start A B -c:A 5 -c:B 10 -A tareas --loglevel=info  
+      - celery -A tareas worker --pool=prefork --concurrency=20 --loglevel=info --logfile=download/celery.log
+      #-  celery multi start A B -c:A 5 -c:B 10 -A tareas --loglevel=info 
+       
     volumes:
       - ./download/:/usr/src/app/download/
       - ./uploaded/:/usr/src/app/uploaded/
     environment:
+      FLASK_DEBUG: 1
       CELERY_BROKER_URL: redis://redis:6379/0        
       CELERY_RESULT_BACKEND: redis://redis:6379/0
-      URL_ARCHIVOS: http://c9b3-190-251-193-251.ngrok.io
+      URL_ARCHIVOS:  http://0035-190-251-193-251.ngrok.io
     links:
       - redis
     depends_on:

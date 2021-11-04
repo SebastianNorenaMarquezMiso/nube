@@ -2,27 +2,15 @@ import os
 import time
 import uuid
 import io
-from celery import Celery
+from tareas import file_conversion ,file_update
 from flask import request, send_from_directory, current_app , send_file
 from flask.json import jsonify
 from flask_restful import Resource
 from werkzeug.utils import secure_filename
 import requests
-FFMPEG_BIN = "ffmpeg.exe"
+
 ALLOWED_EXTENSIONS = set(['mp3', 'wav', 'ogg', 'aac', 'wma'])
-CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://redis:6379/0'),
 
-app = Celery('tasks', broker=CELERY_BROKER_URL)
-app.conf.update(os.environ.items())
-
-@app.task(name="tabla.file_conversion")
-def file_conversion(request_json):
-    pass
-
-
-@app.task(name="tabla.file_update")
-def file_update(request_json):
-    pass
 
 
 class VistaFiles(Resource):
@@ -56,15 +44,20 @@ class VistaFiles(Resource):
             uuidSelected = uuid.uuid4()
             dfile = '{}.{}'.format(os.path.splitext(filename)[
                                        0] + str(uuidSelected), str(format))  # Build file name
+            outputF = os.path.join(os.path.dirname(__file__).replace("vistas", "") + current_app.config['DOWNLOAD_FOLDER'], dfile)
+            inputF  = os.getenv('URL_ARCHIVOS')+'/upload/' + filename                  
             json = {
                 'creation_date': str(int(time.time())),
                 'filename': filename,
                 'dfile': dfile,
-                'taskId': request.form.get("taskId")
+                'taskId': request.form.get("taskId"),
+                'output':outputF,
+                'input':inputF,
+                'urlFile': os.getenv('URL_ARCHIVOS')+'/download'
             }
 
-            args = (json,)
-            file_conversion.apply_async(args)
+            #args = (json,)
+            file_conversion.delay(json)
             return "Task converted", 201
         
         else:
@@ -94,17 +87,23 @@ class VistaUpdateFiles(Resource):
 
         dfile = '{}.{}'.format(os.path.splitext(name)[0] + str(uuid.uuid4()), str(newFormat))  # Build file name
 
+        inputF=os.getenv('URL_ARCHIVOS')+'/upload/' + request_json["filename"]  # Build input path
+        outputF = os.path.join(os.path.dirname(__file__).replace("vistas", "") + current_app.config['DOWNLOAD_FOLDER'],
+                            request_json["dfile"])  # Build output path
+
         json = {
             'creation_date': str(int(time.time())),
             'filename': name,
             'dfile': dfile,
             'taskId': request.json["taskId"],
             'status': status,
-            'nameFormat': request.json['nameFormat']
+            'nameFormat': request.json['nameFormat'],
+            'output':outputF,
+            'input':inputF,
         }
 
-        args = (json,)
-        file_update.apply_async(args)
+        #args = (json,)
+        file_update.delay(json)
 
         return "Task updated", 201
 

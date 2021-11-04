@@ -1,34 +1,40 @@
 import datetime
 import os
 import subprocess as sp
-
 from celery import Celery
 from celery.signals import task_postrun
-from flask import current_app
-
-from app import db
-from modelos import Task, TaskSchema
+from flask import current_app,Flask
+from modelos import Task, TaskSchema,db
 import requests
 
-task_schema = TaskSchema()
+celery = Celery(__name__)
+celery.conf.broker_url = os.environ.get("CELERY_BROKER_URL", 'redis://redis:6379/0')
+celery.conf.result_backend = os.environ.get("CELERY_RESULT_BACKEND",  'redis://redis:6379/0')
+def create_app(config_name):
+    app = Flask(__name__)
+    app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:uniandes@db-0001.cexmvypaid2k.us-east-1.rds.amazonaws.com:5432/postgres"
+    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+    app.config['JWT_SECRET_KEY']='frase-secreta'
+    app.config['PROPAGATE_EXCEPTIONS'] = True
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    return app
 
-CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://redis:6379/0'),
-CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://redis:6379/0')
 
-app = Celery('tasks', broker=CELERY_BROKER_URL, backend=CELERY_RESULT_BACKEND)
-app.conf.update(os.environ.items())
-@app.task(name="tabla.file_conversion")
+
+@celery.task(name="file_conversion")
 def file_conversion(request_json):
+    app = create_app('default')
+    db.init_app(app)
     # Build input path and add file
     # inputF = os.path.join(
     #     os.path.dirname(__file__).replace("tareas", "") + current_app.config['UPLOAD_FOLDER'],
     #     request_json["filename"])
     # Build output path and add file
-    outputF = os.path.join(
-         os.path.dirname(__file__).replace("tareas", "") + current_app.config['DOWNLOAD_FOLDER'], request_json["dfile"])
-    inputF=os.getenv('URL_ARCHIVOS')+'/upload/' + request_json["filename"]
-
- 
+   
+    outputF = request_json["output"] 
+    inputF  = request_json["input"] 
+    urlFile = request_json["urlFile"] 
+    
     # Ffmpeg is flexible enough to handle wildstar conversions
     # convertCMD = ['ffmpeg', '-y', '-i', inputF, outputF]
     convertCMD = ['/usr/bin/ffmpeg', '-y', '-i', inputF, outputF]
@@ -52,72 +58,71 @@ def file_conversion(request_json):
          os.path.dirname(__file__).replace("tareas", "") + current_app.config['DOWNLOAD_FOLDER'], request_json["filename"]))
     '''
     #download file
-    file = open(os.path.join(
-         os.path.dirname(__file__).replace("tareas", "") + current_app.config['DOWNLOAD_FOLDER'], request_json["dfile"]), "rb")
+    file = open(outputF, "rb")
     sendFile = {"file": file}
     
-    requests.post(os.getenv('URL_ARCHIVOS')+'/download',
-                                files=sendFile)
-    outputFormat = os.path.join(current_app.config['DOWNLOAD_FOLDER'],
-                                    request_json["dfile"])  # Build previous format name path
+    requests.post(urlFile,files=sendFile)
+    # Build previous format name path
     os.remove(outputF)
     # Update DB
-    task = Task.query.get_or_404(request_json["taskId"])
-    task.name = request_json["filename"]
-    task.status = "PROCESSED"
-    task.nameFormat = request_json["dfile"]
-    task.dateUp = task.dateUp
-    ts2 = datetime.datetime.now()
-    task.datePr = ts2
-    db.session.commit()
+    with app.app_context():
+        task = Task.query.get_or_404(request_json["taskId"])
+        task.name = request_json["filename"]
+        task.status = "PROCESSED"
+        task.nameFormat = request_json["dfile"]
+        task.dateUp = task.dateUp
+        ts2 = datetime.datetime.now()
+        task.datePr = ts2
+        db.session.commit()
+    return True
 
-
-@app.task(name="tabla.file_update")
+@celery.task(name="file_update")
 def file_update(request_json):
     print("------")
-    inputF=os.getenv('URL_ARCHIVOS')+'/upload/' + request_json["filename"]  # Build input path
-    outputF = os.path.join(os.path.dirname(__file__).replace("tareas", "") + current_app.config['DOWNLOAD_FOLDER'],
-                           request_json["dfile"])  # Build output path
+    app = create_app('default')
+    db.init_app(app)
+    with app.app_context():
+        outputF = request_json["output"] 
+        inputF  = request_json["input"] 
+        urlFile = request_json["urlFile"] 
+        urlFile = os.getenv('URL_ARCHIVOS')+'/download'
+       
+        # Ffmpeg is flexible enough to handle wildstar conversions
+        # convertCMD = ['ffmpeg', '-y', '-i', inputF, outputF]
+        convertCMD = ['/usr/bin/ffmpeg', '-y', '-i', inputF, outputF]
+        # convertCMD = ['ffmpeg', '-y', '-i', inputF, outputF]
+        executeOrder66 = sp.Popen(convertCMD)
 
-    # Ffmpeg is flexible enough to handle wildstar conversions
-    # convertCMD = ['ffmpeg', '-y', '-i', inputF, outputF]
-    convertCMD = ['/usr/bin/ffmpeg', '-y', '-i', inputF, outputF]
-    # convertCMD = ['ffmpeg', '-y', '-i', inputF, outputF]
-    executeOrder66 = sp.Popen(convertCMD)
+        try:
+            outs, errs = executeOrder66.communicate(timeout=20)  # tell program to wait
+        except TimeoutError:
+            proc.kill()
 
-    try:
-        outs, errs = executeOrder66.communicate(timeout=20)  # tell program to wait
-    except TimeoutError:
-        proc.kill()
-
-    # Delete previous file
-    if request_json["status"] == "PROCESSED":
-        previousName = request_json['nameFormat']
-        # outputF = os.path.join(os.path.dirname(__file__).replace("tareas", "") + current_app.config['DOWNLOAD_FOLDER'],
-        #                        previousName)  # Build previous path
-        # os.remove(outputF)
+        # Delete previous file
+        if request_json["status"] == "PROCESSED":
+            previousName = request_json['nameFormat']
+            # outputF = os.path.join(os.path.dirname(__file__).replace("tareas", "") + current_app.config['DOWNLOAD_FOLDER'],
+            #                        previousName)  # Build previous path
+            # os.remove(outputF)
+            
+            #send download file to s3 and delete from local
         
-        #send download file to s3 and delete from local
-    
-        file = open(os.path.join(
-            os.path.dirname(__file__).replace("tareas", "") + current_app.config['DOWNLOAD_FOLDER'], request_json["dfile"]), "rb")
-        sendFile = {"file": file}
-        requests.post(os.getenv('URL_ARCHIVOS')+'/download',
-                                    files=sendFile)
-        outputFormat = os.path.join(current_app.config['DOWNLOAD_FOLDER'],
-                                        request_json["dfile"])  # Build previous format name path
-        os.remove(outputF)
+            file = open(outputF, "rb")
+            sendFile = {"file": file}
+            requests.post(urlFile,files=sendFile)
+            #outputFormat = os.path.join(current_app.config['DOWNLOAD_FOLDER'],request_json["dfile"])  # Build previous format name path
+            os.remove(outputF)
 
-    print("DONE\n")
+        print("DONE\n")
 
-    task = Task.query.get_or_404(request_json["taskId"])
-    task.status = "PROCESSED"
-    task.datePr = datetime.datetime.now()
-    task.nameFormat = request_json["dfile"]
+        task = Task.query.get_or_404(request_json["taskId"])
+        task.status = "PROCESSED"
+        task.datePr = datetime.datetime.now()
+        task.nameFormat = request_json["dfile"]
 
-    db.session.commit()
+        db.session.commit()
+    return True
 
-
-@task_postrun.connect
+'''@task_postrun.connect
 def close_session(*args, **kwargs):
-    db.session.remove()
+    db.session.remove()'''         

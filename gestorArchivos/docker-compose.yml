@@ -6,9 +6,9 @@ services:
       dockerfile: Dockerfile
     command: 'python app.py'
     environment:
-      AWS_ACCESS_KEY_ID: ASIA3I2TQPFIY2UJJ2F5
-      AWS_SECRET_ACCESS_KEY_ID: 0RoLL7uIViK4QYVdRXLL2er0mRyBDxzudNbyz5aQ
-      AWS_SESSION_TOKEN: FwoGZXIvYXdzEMf//////////wEaDFIMwzVRhpL23onJ1yLKAb5RSOZmoupq0co/O8vRnBylDw0h/3GetqsgdUTikCqEb91cKHqlsmfKnjlrnqEvHHei+klXDgYcU63MwwHYh5XwyjkMLVpCryMXu4fVRBZ9oer+1j4A8BBgi0f+m7lCWGNYtgloOjijSH6BU0ovk73IdJsVQuAAzkVLPfNizR/HZTIAh1Gs762aeYSIjatqp4ZdqQhCfjdRkFMCgnkpRO08kBviWjqKrFrVNkP0EBLIglq7gv/KiybCwL5BLjlFPMKr6YdDv5NlDw4opsuPjAYyLWx5DAkSJK4t6EJNrWkA5feBr36rMJVkxzPckKT/MQAMlOvIqSK4q9o/RTIPvQ==
+      AWS_ACCESS_KEY_ID: ASIA3I2TQPFIUTWVDKXZ
+      AWS_SECRET_ACCESS_KEY_ID: TnP6er2P5oo50kFbtk8sMEvzYqjCI4dYmLQ5+Q0M
+      AWS_SESSION_TOKEN: FwoGZXIvYXdzEND//////////wEaDHBLhJUlHe2jMuqmRyLKAZDPcJBAOFRxegcB/AlZqi6h6dp7dbJ0xOwmJpUBz+5blIVcVgCMcia0YRPXRrtiJO+xIqw0VpJEOOdxm9UE7eRDFw/Ahdr6lZNFa50xo8+yS++CHRsyXwSNcP6r/b+MijYlc7vxhMaXndIqy9gSwa0+sWJbJLMXxL1yVooWLbx6c5zhrbNaU4W/W0abryd7gLE79TV0i8dk08m4wL+nwkc+sF7jbuqhHx97XLHcCzblZv0vce7drvi8bNZwCvzsD760Vf9Cli44oooosLqRjAYyLb03ln105NJaZgIcC52tTndpM6kjNWlCEYcswm+GZvOQeHI8BSvtiQCmKMxrUg==
     volumes:
       - ./uploads/:/usr/src/app/uploads/
       - ./downloads/:/usr/src/app/downloads/
