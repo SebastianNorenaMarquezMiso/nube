@@ -9,7 +9,7 @@ services:
       - ./download/:/usr/src/app/download/
       - ./uploaded/:/usr/src/app/uploaded/
     environment:
-      URL_ARCHIVOS: http://34d0-179-32-133-175.ngrok.io
+      URL_ARCHIVOS: http://5795-190-251-193-251.ngrok.io
     ports:
       - 8081:8081
     depends_on:
@@ -26,18 +26,28 @@ services:
     build:
       context: ./conversion/flaskr/
       dockerfile: Dockerfile
-    command: celery -A tareas worker -l INFO -P solo
+    entrypoint: ["/bin/sh","-c"]
+    command: 
+      - celery worker -A tareas --loglevel=info -P solo  
     volumes:
       - ./download/:/usr/src/app/download/
       - ./uploaded/:/usr/src/app/uploaded/
     environment:
-      CELERY_BROKER_URL: redis://redis
-      CELERY_RESULT_BACKEND: redis://redis
-      URL_ARCHIVOS: http://34d0-179-32-133-175.ngrok.io
+      CELERY_BROKER_URL: redis://redis:6379/0        
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+      URL_ARCHIVOS: http://2e5b-190-251-193-251.ngrok.io
     links:
       - redis
     depends_on:
       - redis
+  flower:
+    image: mher/flower:0.9.5
+    restart: unless-stopped
+    command: ["flower", "--address=0.0.0.0", "--broker=redis://redis:6379/0","--port=5555", "--logging=DEBUG"]
+    depends_on:
+      - redis
+    ports:
+      - 5555:5555
 volumes:
     redis_data:
     data_app: {} 

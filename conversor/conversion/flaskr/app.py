@@ -10,10 +10,10 @@ from celery import Celery
 
 UPLOAD_FOLDER = 'uploaded'
 DOWNLOAD_FOLDER = 'download'
-CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379'),
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://redis:6379/0'),
 
 celery = Celery(__name__, broker=CELERY_BROKER_URL)
-
+celery.conf.update(os.environ.items())
 def create_app(config_name):
     app = Flask(__name__)
     app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:uniandes@db-0001.cexmvypaid2k.us-east-1.rds.amazonaws.com:5432/postgres"

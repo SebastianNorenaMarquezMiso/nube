@@ -10,10 +10,10 @@ from werkzeug.utils import secure_filename
 import requests
 FFMPEG_BIN = "ffmpeg.exe"
 ALLOWED_EXTENSIONS = set(['mp3', 'wav', 'ogg', 'aac', 'wma'])
-CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379'),
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://redis:6379/0'),
 
 app = Celery('tasks', broker=CELERY_BROKER_URL)
-
+app.conf.update(os.environ.items())
 
 @app.task(name="tabla.file_conversion")
 def file_conversion(request_json):
