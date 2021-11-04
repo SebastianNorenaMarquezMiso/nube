@@ -3,6 +3,7 @@ aniso8601==9.0.1
 attrs==21.2.0
 billiard==3.6.4.0
 celery==4.3.0
+eventlet==0.32.0
 certifi==2021.10.8
 charset-normalizer==2.0.7
 click==7.1.2

@@ -43,14 +43,14 @@ def file_conversion(request_json):
     print("DONE\n")
     #send download file to s3 and delete from local
     #upload file
-    fileUp = open(os.path.join(
+    '''fileUp = open(os.path.join(
          os.path.dirname(__file__).replace("tareas", "") + current_app.config['DOWNLOAD_FOLDER'], request_json["filename"]), "rb")
     sendFileUp = {"file": fileUp}
     requests.post(os.getenv('URL_ARCHIVOS')+'/upload',
                                 files=sendFileUp)
     os.remove(os.path.join(
          os.path.dirname(__file__).replace("tareas", "") + current_app.config['DOWNLOAD_FOLDER'], request_json["filename"]))
-    
+    '''
     #download file
     file = open(os.path.join(
          os.path.dirname(__file__).replace("tareas", "") + current_app.config['DOWNLOAD_FOLDER'], request_json["dfile"]), "rb")
@@ -74,6 +74,7 @@ def file_conversion(request_json):
 
 @app.task(name="tabla.file_update")
 def file_update(request_json):
+    print("------")
     inputF=os.getenv('URL_ARCHIVOS')+'/upload/' + request_json["filename"]  # Build input path
     outputF = os.path.join(os.path.dirname(__file__).replace("tareas", "") + current_app.config['DOWNLOAD_FOLDER'],
                            request_json["dfile"])  # Build output path

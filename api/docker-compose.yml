@@ -6,6 +6,6 @@ services:
       dockerfile: Dockerfile
     command: 'python app.py'
     environment:
-      URL_CONVERSOR: https://c22b-190-251-193-251.ngrok.io
+      URL_CONVERSOR: http://1073-190-251-193-251.ngrok.io
     ports:
       - 8080:8080
