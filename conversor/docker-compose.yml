@@ -29,7 +29,7 @@ services:
     command:
       - celery -A tareas worker --pool=prefork --concurrency=20 --loglevel=info --logfile=download/celery.log
       #-  celery multi start A B -c:A 5 -c:B 10 -A tareas --loglevel=info 
-       
+      #docker-compose up --build --scale worker=3 
     volumes:
       - ./download/:/usr/src/app/download/
       - ./uploaded/:/usr/src/app/uploaded/
