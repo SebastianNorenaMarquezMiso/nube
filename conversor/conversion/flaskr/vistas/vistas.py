@@ -88,9 +88,9 @@ class VistaUpdateFiles(Resource):
 
         dfile = '{}.{}'.format(os.path.splitext(name)[0] + str(uuid.uuid4()), str(newFormat))  # Build file name
 
-        inputF=os.getenv('URL_ARCHIVOS')+'/upload/' + request_json["filename"]  # Build input path
+        inputF=os.getenv('URL_ARCHIVOS')+'/upload/' +name  # Build input path
         outputF = os.path.join(os.path.dirname(__file__).replace("vistas", "") + current_app.config['DOWNLOAD_FOLDER'],
-                            request_json["dfile"])  # Build output path
+                            dfile)  # Build output path
 
         json = {
             'creation_date': str(int(time.time())),
