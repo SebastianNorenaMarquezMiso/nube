@@ -11,7 +11,7 @@ services:
     environment:
       URL_ARCHIVOS:  http://0035-190-251-193-251.ngrok.io
     ports:
-      - 8081:8081
+      - 81:81
     depends_on:
       - redis
     hostname: micro_conversion
