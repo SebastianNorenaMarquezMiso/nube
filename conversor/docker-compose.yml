@@ -9,7 +9,7 @@ services:
       - ./download/:/usr/src/app/download/
       - ./uploaded/:/usr/src/app/uploaded/
     environment:
-      URL_ARCHIVOS:  http://ec2-44-192-88-252.compute-1.amazonaws.com
+      URL_ARCHIVOS:  http://ec2-34-234-100-200.compute-1.amazonaws.com
     ports:
       - 81:81
     depends_on:
@@ -37,7 +37,7 @@ services:
       FLASK_DEBUG: 1
       CELERY_BROKER_URL: redis://redis:6379/0        
       CELERY_RESULT_BACKEND: redis://redis:6379/0
-      URL_ARCHIVOS:  http://ec2-44-192-88-252.compute-1.amazonaws.com
+      URL_ARCHIVOS:  http://ec2-34-234-100-200.compute-1.amazonaws.com
     links:
       - redis
     depends_on:
