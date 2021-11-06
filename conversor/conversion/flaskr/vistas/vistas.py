@@ -31,6 +31,7 @@ class VistaFiles(Resource):
             resp.status_code = 400
             return resp
         if file and allowed_file(file.filename):
+            print("****")
             format = request.form.get("fileType")
             filename = secure_filename(file.filename)
             filename = '{}.{}'.format(os.path.splitext(filename)[0] + str(uuid.uuid4()),
