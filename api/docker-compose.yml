@@ -6,6 +6,6 @@ services:
       dockerfile: Dockerfile
     command: 'python app.py'
     environment:
-      URL_CONVERSOR: http://ec2-3-220-231-19.compute-1.amazonaws.com
+      URL_CONVERSOR: http://ec2-44-192-109-192.compute-1.amazonaws.com
     ports:
       - 81:81
