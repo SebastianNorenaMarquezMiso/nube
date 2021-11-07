@@ -35,7 +35,7 @@ def file_save(request_json):
     taskId = request_json["taskId"] 
     print("***",urlFile)
     with app.app_context():
-        file = open(outputF, "rb")
+        file = open(output, "rb")
         sendFile = {"file": file}
         print("***",urlFile+'/upload')
         requests.post(urlFile+'/upload',files=sendFile)               
