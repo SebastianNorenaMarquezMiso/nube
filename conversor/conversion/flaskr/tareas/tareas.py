@@ -35,7 +35,7 @@ def file_save(request_json):
     taskId = request_json["taskId"] 
     with app.app_context():
         file = open(output)
-        sendFile = {"file": (filename, file.stream, file.mimetype)}
+        sendFile = {"file": file}
         requests.post(urlFile+'/upload',
                             files=sendFile)               
         json = {
@@ -51,7 +51,7 @@ def file_save(request_json):
         #args = (json,)
         file_conversion.delay(json)
     return True
-    
+
 @celery.task(name="file_conversion")
 def file_conversion(request_json):
     app = create_app('default')
