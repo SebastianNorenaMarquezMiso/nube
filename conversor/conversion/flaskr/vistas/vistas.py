@@ -101,6 +101,7 @@ class VistaUpdateFiles(Resource):
             'nameFormat': request.json['nameFormat'],
             'output':outputF,
             'input':inputF,
+            'urlFile': os.getenv('URL_ARCHIVOS')+'/download'
         }
 
         #args = (json,)
