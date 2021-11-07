@@ -2,7 +2,7 @@ import os
 import time
 import uuid
 import io
-from tareas import file_conversion ,file_update
+from tareas import file_conversion ,file_update,file_save
 from flask import request, send_from_directory, current_app , send_file
 from flask.json import jsonify
 from flask_restful import Resource
@@ -36,31 +36,28 @@ class VistaFiles(Resource):
             filename = secure_filename(file.filename)
             filename = '{}.{}'.format(os.path.splitext(filename)[0] + str(uuid.uuid4()),
                                       os.path.splitext(filename)[1])  # Build input name
-
-            #file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
-            sendFile = {"file": (filename, file.stream, file.mimetype)}
-            requests.post(os.getenv('URL_ARCHIVOS')+'/upload',
-                                files=sendFile)
-
+            output = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+            file.save(output)
+            
             uuidSelected = uuid.uuid4()
             dfile = '{}.{}'.format(os.path.splitext(filename)[
-                                       0] + str(uuidSelected), str(format))  # Build file name
+                                        0] + str(uuidSelected), str(format))  # Build file name
             outputF = os.path.join(os.path.dirname(__file__).replace("vistas", "") + current_app.config['DOWNLOAD_FOLDER'], dfile)
-            inputF  = os.getenv('URL_ARCHIVOS')+'/upload/' + filename                  
+            inputF  = os.getenv('URL_ARCHIVOS')+'/upload/' + filename 
+            
             json = {
+                'output':output,
+                'urlFile':os.getenv('URL_ARCHIVOS'),
+                'outputF':outputF,
+                'inputF':inputF,
+                'filename':filename,
+                'dfile':dfile,
                 'creation_date': str(int(time.time())),
-                'filename': filename,
-                'dfile': dfile,
-                'taskId': request.form.get("taskId"),
-                'output':outputF,
-                'input':inputF,
-                'urlFile': os.getenv('URL_ARCHIVOS')+'/download'
+                'taskId': request.form.get("taskId")
             }
-
             #args = (json,)
-            file_conversion.delay(json)
+            file_save.delay(json)
             return "Task converted", 201
-        
         else:
             resp = jsonify(
                 {'message': 'Allowed file types are mp3, wav, ogg ,aac ,wma'})

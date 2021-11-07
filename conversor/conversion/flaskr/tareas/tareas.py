@@ -21,8 +21,37 @@ def create_app(config_name):
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     return app
 
+@celery.task(name="file_save")
+def file_save(request_json):
+    app = create_app('default')
+    db.init_app(app)
+    output = request_json["output"] 
+    inputF  = request_json["input"] 
+    urlFile = request_json["urlFile"] 
+    filename = request_json["filename"]
+    outputF = request_json["outputF"]
+    creation_date = request_json["creation_date"]
+    dfile = request_json["dfile"] 
+    taskId = request_json["taskId"] 
+    with app.app_context():
+        file = open(output)
+        sendFile = {"file": (filename, file.stream, file.mimetype)}
+        requests.post(urlFile+'/upload',
+                            files=sendFile)               
+        json = {
+            'creation_date':creation_date,
+            'filename': filename,
+            'dfile': dfile,
+            'taskId': taskId,
+            'output':outputF,
+            'input':inputF,
+            'urlFile': urlFile+'/download'
+        }
 
-
+        #args = (json,)
+        file_conversion.delay(json)
+    return True
+    
 @celery.task(name="file_conversion")
 def file_conversion(request_json):
     app = create_app('default')
