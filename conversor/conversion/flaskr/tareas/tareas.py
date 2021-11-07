@@ -26,7 +26,7 @@ def file_save(request_json):
     app = create_app('default')
     db.init_app(app)
     output = request_json["output"] 
-    inputF  = request_json["input"] 
+    inputF  = request_json["inputF"]  
     urlFile = request_json["urlFile"] 
     filename = request_json["filename"]
     outputF = request_json["outputF"]
@@ -47,10 +47,10 @@ def file_save(request_json):
             'input':inputF,
             'urlFile': urlFile+'/download'
         }
-
         #args = (json,)
         file_conversion.delay(json)
     return True
+
 
 @celery.task(name="file_conversion")
 def file_conversion(request_json):
