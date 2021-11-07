@@ -33,6 +33,7 @@ def file_save(request_json):
     creation_date = request_json["creation_date"]
     dfile = request_json["dfile"] 
     taskId = request_json["taskId"] 
+    print("***",urlFile)
     with app.app_context():
         file = open(output)
         sendFile = {"file": file}
