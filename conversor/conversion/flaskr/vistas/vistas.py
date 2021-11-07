@@ -69,7 +69,7 @@ class VistaGetFiles(Resource):
     def get(self, filename):
         try:
             #print(os.path.join(os.path.dirname(__file__).replace("vistas", "") + current_app.config['DOWNLOAD_FOLDER']))
-            content = requests.get(os.getenv('URL_ARCHIVOS')+'/upload/' + filename, stream=True)
+            content = requests.get(os.getenv('URL_ARCHIVOS')+'/download/' + filename, stream=True)
             return send_file(io.BytesIO(content.content), as_attachment=True, attachment_filename=filename)
         except FileNotFoundError:
             abort(404)
