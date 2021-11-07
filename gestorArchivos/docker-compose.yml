@@ -6,11 +6,13 @@ services:
       dockerfile: Dockerfile
     command: 'python app.py'
     environment:
-      AWS_ACCESS_KEY_ID: ASIA3I2TQPFIYXON2VFC
-      AWS_SECRET_ACCESS_KEY_ID: h8ytR/wBBbNRbAnbEP9hIiXM9I9+mMLwGRQAEWOU
-      AWS_SESSION_TOKEN: FwoGZXIvYXdzEPv//////////wEaDJ23e8PMFay8A3hXtSLKAT3eNAXCmiuoK2e/gr2+3CipNFxFDf/KZWiHVQ9jOFuffGWaYPfpwVGXXI3nNnZGTrX6RLHwMzTOHzzcKRppUhfo46yi/O5XO8AOfDC5+6ptuJBEw0QVr3PdQzgy9sNc4hBUPOo7kdSSVpTzjx2T8Ar/xloDpml8Ot5DS+CZJx9HvS1FswbZ3bHctcP2RXVhbcotRWvGg0fsERrm6pRMuyOxqJ9cXye8vDK2VV3rUObScFEYpF8AGLVB7ItRBf6olxgd6aSM647w8d4oroKbjAYyLbu/6o66h98LBkwBYDeBKxngPS4Sx4rimCAuXtAMfm/wBq0JLIMkvYBpwM7mVg==
+      AWS_ACCESS_KEY_ID: ASIA3I2TQPFIYWL77WU4
+      AWS_SECRET_ACCESS_KEY_ID: Nnsjm9hUUER+hWJ5R57vmTnHH56ZQK/vK67Urq5j
+      AWS_SESSION_TOKEN: FwoGZXIvYXdzEAIaDB0aHzCayU9VNboAPiLKAdrvgRtIbcbSkxhtof2erPlralGCqGH18OnoSBdFn3CmtV79MxrpQvBkeHkpoB3dr8gjtBr1HuSOAJ1wn4kOOyS3ftVyEAJ2F3/dR/DNgFs5DlPwhhtqdEG3yMv3zrm3pO/AuQwwaf4+ieR1TXLA/rQhrK+JLbCMThuGeIur7OzLCBA2nADlDhHOSLEoGXn4M9YNpCYcCVW0B9dSb0PJ1/knCoipTtI5v0PM5Pg4uH8Q19rRlAoyLLh60gVKv56p8VybW4hXHVevmmwozMicjAYyLRUHm/LICxhkDU+mXkfMvUGTb/vBn1ENmo2EiK1FjCN2rOEr030tEgGc6WiuYg==
     volumes:
       - ./uploads/:/usr/src/app/uploads/
       - ./downloads/:/usr/src/app/downloads/
     ports:
       - 81:81
+
+
