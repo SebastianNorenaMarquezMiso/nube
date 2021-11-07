@@ -68,12 +68,8 @@ class VistaTasks(Resource):
         db.session.commit()
 
         values = {'fileType': format, 'taskId': task_schema.dump(new_task)['id']}
-        print('values',values)
         content = requests.post(os.getenv('URL_CONVERSOR')+'/files',
                                 files=sendFile, data=values)
-        print('---',sendFile)
-        print(os.getenv('URL_CONVERSOR'))
-        print('content',content)
         if (content.status_code == 201):
             return "Tasks converted", 200
         else:

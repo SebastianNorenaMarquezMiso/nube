@@ -7,7 +7,6 @@ def upload_file(folder,file_name, bucket):
     """
     Function to upload a file to an S3 bucket
     """
-    print("/////*****")
     s3_client = boto3.client('s3', aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
     aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY_ID'),
     aws_session_token=os.getenv('AWS_SESSION_TOKEN'))

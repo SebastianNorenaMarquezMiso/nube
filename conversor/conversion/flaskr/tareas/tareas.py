@@ -33,12 +33,11 @@ def file_save(request_json):
     creation_date = request_json["creation_date"]
     dfile = request_json["dfile"] 
     taskId = request_json["taskId"] 
-    print("***",urlFile)
     with app.app_context():
         file = open(output, "rb")
         sendFile = {"file": file}
-        print("***",urlFile+'/upload')
-        requests.post(urlFile+'/upload',files=sendFile)               
+        requests.post(urlFile+'/upload',files=sendFile) 
+        os.remove(output)              
         json = {
             'creation_date':creation_date,
             'filename': filename,
@@ -109,7 +108,6 @@ def file_conversion(request_json):
 
 @celery.task(name="file_update")
 def file_update(request_json):
-    print("------")
     app = create_app('default')
     db.init_app(app)
     with app.app_context():

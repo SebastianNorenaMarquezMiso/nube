@@ -31,7 +31,6 @@ class VistaFiles(Resource):
             resp.status_code = 400
             return resp
         if file and allowed_file(file.filename):
-            print("****")
             format = request.form.get("fileType")
             filename = secure_filename(file.filename)
             filename = '{}.{}'.format(os.path.splitext(filename)[0] + str(uuid.uuid4()),
@@ -44,7 +43,6 @@ class VistaFiles(Resource):
                                         0] + str(uuidSelected), str(format))  # Build file name
             outputF = os.path.join(os.path.dirname(__file__).replace("vistas", "") + current_app.config['DOWNLOAD_FOLDER'], dfile)
             inputF  = os.getenv('URL_ARCHIVOS')+'/upload/' + filename 
-            print("**",os.getenv('URL_ARCHIVOS'))
             json = {
                 'output':output,
                 'urlFile':os.getenv('URL_ARCHIVOS'),
