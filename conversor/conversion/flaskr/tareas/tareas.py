@@ -37,7 +37,7 @@ def file_save(request_json):
     with app.app_context():
         file = open(outputF, "rb")
         sendFile = {"file": file}
-         print("***",urlFile+'/upload')
+        print("***",urlFile+'/upload')
         requests.post(urlFile+'/upload',files=sendFile)               
         json = {
             'creation_date':creation_date,
