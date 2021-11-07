@@ -7,4 +7,5 @@ services:
     command: 'python app.py'
     environment:
       URL_CONVERSOR: http://ec2-3-239-27-131.compute-1.amazonaws.com
+    ports:
       - 81:81
