@@ -7,6 +7,7 @@ sudo apt update -y
 sudo rm /var/lib/apt/lists/lock
 sudo rm /var/cache/apt/archives/lock
 sudo rm /var/lib/dpkg/lock*
+cd /home/ubuntu
 sudo git clone --branch entrega2 https://javargas1029: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@github.com/MISW-4204-ComputacionEnNube/Proyecto-Grupo5-202120 
 cd Proyecto-Grupo5-202120
 sudo apt install nginx -y
