@@ -2,7 +2,7 @@ version: '3.8'
 services:
   api:
     build:
-      context: ./api/flaskr/
+      context: ./flaskr/
       dockerfile: Dockerfile
     command: 'python app.py'
     volumes:
@@ -23,7 +23,7 @@ services:
 
   worker:
     build:
-      context: ./api/flaskr
+      context: ./flaskr
     entrypoint: ["/bin/sh","-c"]
     command:
       - celery -A tareas worker --pool=prefork --concurrency=20 --loglevel=info --logfile=download/celery.log
