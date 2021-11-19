@@ -36,7 +36,7 @@ def file_save(request_json):
         dfile = request_json["dfile"]
         format = request_json["format"]
         ts = datetime.datetime.now()
-        new_task = Task(name=f.filename, status="UPLOADED",
+        new_task = Task(name=filename, status="UPLOADED",
                         dateUp=ts, datePr=ts, nameFormat="", user=identity)
         db.session.add(new_task)
         db.session.commit()
