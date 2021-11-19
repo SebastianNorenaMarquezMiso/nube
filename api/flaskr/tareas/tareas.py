@@ -46,7 +46,9 @@ def file_save(request_json):
         file = open(output, "rb")
         sendFile = {'fieldname': (file.name.replace("uploaded/", ""), file.read())}
         content = requests.post(urlFile+'/files',files=sendFile, data=values)
+        print('*****')
         print(content)
+        print('*****')
         os.remove(output)              
     return True
 
