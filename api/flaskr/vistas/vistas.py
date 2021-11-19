@@ -68,12 +68,10 @@ class VistaTasks(Resource):
         db.session.commit()
 
         values = {'fileType': format, 'taskId': task_schema.dump(new_task)['id']}
-        content = requests.post(os.getenv('URL_CONVERSOR')+'/files',
+        requests.post(os.getenv('URL_CONVERSOR')+'/files',
                                 files=sendFile, data=values)
-        if (content.status_code == 201):
-            return "Tasks converted", 200
-        else:
-            return content.json(), 400
+        return "Tasks converted", 200
+ 
 
 
 class VistaTaskDetail(Resource):
@@ -91,29 +89,23 @@ class VistaTaskDetail(Resource):
         task.status = "UPLOADED"
         task.dateUp = datetime.datetime.now()
         db.session.commit()
-        content = requests.put(os.getenv('URL_CONVERSOR') +'/update-files',
+        requests.put(os.getenv('URL_CONVERSOR') +'/update-files',
                                json={'name': taskJson['name'], 'status': taskJson['status']['llave'], 'taskId': task_id,
                                      'nameFormat': taskJson['nameFormat'], 'newFormat': request.form.get('newFormat')})
-
-        if (content.status_code == 201):
-            return "Task updated", 200
-        else:
-            return "Tasks not updated", 400
+        return "Task updated", 200
+       
 
     @jwt_required()
     def delete(self, task_id):
         task = Task.query.get_or_404(task_id)
         taskJson = json.loads(json.dumps(task_schema.dump(task), default=myConverter))
 
-        content = requests.delete(os.getenv('URL_CONVERSOR')+'/delete-files',
+        requests.delete(os.getenv('URL_CONVERSOR')+'/delete-files',
                                   json={'name': taskJson['name'], 'nameFormat': taskJson['nameFormat']})
-
-        if (content.status_code == 200):
-            db.session.delete(task)
-            db.session.commit()
-            return "Task deleted", 200
-        else:
-            return "Tasks not deleted", 400
+        db.session.delete(task)
+        db.session.commit()
+        return "Task deleted", 200
+        
 
 
 class VistaFileDetail(Resource):
@@ -127,7 +119,7 @@ class VistaFileDetail(Resource):
 def myConverter(o):
     if isinstance(o, datetime.datetime):
         return o.__str__()
-        
+
 class VistaTest(Resource):
     def get(self):
         return "funcionando"
