@@ -23,7 +23,6 @@ def create_app(config_name):
 
 @celery.task(name="file_save")
 def file_save(request_json):
-    print("1******")
     app = create_app('default')
     db.init_app(app)
     with app.app_context():
@@ -46,6 +45,9 @@ def file_save(request_json):
         values = {'fileType': format, 'taskId': task_schema.dump(new_task)['id']}
         file = open(output, "rb")
         sendFile = {"file": file}
+        print("1******")
+        print(urlFile+'/files)
+        print(sendFile)
         requests.post(urlFile+'/files',files=sendFile, data=values)
         os.remove(output)              
     return True
