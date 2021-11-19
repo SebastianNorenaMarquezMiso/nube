@@ -1,13 +1,16 @@
 import datetime
 import io
 import json
+import time
+import uuid
 import os
 import requests
+from tareas import file_save
 from flask import request, send_file
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from flask_restful import Resource
-import asyncio
 from modelos import db, User, Task, UserSchema, TaskSchema
+from werkzeug.utils import secure_filename
 
 user_schema = UserSchema()
 task_schema = TaskSchema()
@@ -56,21 +59,33 @@ class VistaTasks(Resource):
         return json.loads(json.dumps([dict(row) for row in result], default=myConverter))
 
     @jwt_required()
-    async def post(self):
+    def post(self):
         identity = get_jwt_identity()
-        f = request.files['file']
-        format = request.form.get("newFormat")
-        sendFile = {"file": (f.filename, f.stream, f.mimetype)}
-        ts = datetime.datetime.now()
-        new_task = Task(name=f.filename, status="UPLOADED",
-                        dateUp=ts, datePr=ts, nameFormat="", user=identity)
-        db.session.add(new_task)
-        db.session.commit()
-
-        values = {'fileType': format, 'taskId': task_schema.dump(new_task)['id']}
-        await requests.post(os.getenv('URL_CONVERSOR')+'/files',
-                                files=sendFile, data=values)
-        return "Task converted", 200                        
+        file = request.files['file']
+        filename = secure_filename(file.filename)
+        filename = '{}.{}'.format(os.path.splitext(filename)[0] + str(uuid.uuid4()),
+                                    os.path.splitext(filename)[1])  # Build input name
+        output = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+        file.save(output)
+        
+        uuidSelected = uuid.uuid4()
+        dfile = '{}.{}'.format(os.path.splitext(filename)[
+                                    0] + str(uuidSelected), str(format))  # Build file name
+        outputF = os.path.join(os.path.dirname(__file__).replace("vistas", "") + current_app.config['DOWNLOAD_FOLDER'], dfile)
+        inputF  = os.getenv('URL_CONVERSOR')+'/files/'
+        json = {
+            'output':output,
+            'urlFile':os.getenv('URL_CONVERSOR'),
+            'outputF':outputF,
+            'inputF':inputF,
+            'filename':filename,
+            'dfile':dfile,
+            'format' = request.form.get("newFormat"),
+            'creation_date': str(int(time.time())),
+        }
+        #args = (json,)
+        file_save.delay(json)
+        return "Task converted", 200  
 
  
 
