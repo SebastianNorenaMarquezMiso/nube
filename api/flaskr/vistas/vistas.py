@@ -67,6 +67,7 @@ class VistaTasks(Resource):
                                     os.path.splitext(filename)[1])  # Build input name
         output = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
         file.save(output)
+        print("******")
         print(output)
         
         uuidSelected = uuid.uuid4()
