@@ -68,6 +68,7 @@ class VistaTasks(Resource):
                                     os.path.splitext(filename)[1])  # Build input name
         output = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
         print("2******")
+        print(output)
         file.save(output)
         print("******")
         print(output)
