@@ -23,6 +23,7 @@ def create_app(config_name):
 
 @celery.task(name="file_save")
 def file_save(request_json):
+    print("1******")
     app = create_app('default')
     db.init_app(app)
     with app.app_context():

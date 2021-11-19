@@ -61,18 +61,12 @@ class VistaTasks(Resource):
     @jwt_required()
     def post(self):
         identity = get_jwt_identity()
-        print("1******")
         file = request.files['file']
         filename = secure_filename(file.filename)
         filename = '{}.{}'.format(os.path.splitext(filename)[0] + str(uuid.uuid4()),
                                     os.path.splitext(filename)[1])  # Build input name
         output = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
-        print("2******")
-        print(output)
-        file.save(output)
-        print("******")
-        print(output)
-        
+        file.save(output)        
         uuidSelected = uuid.uuid4()
         dfile = '{}.{}'.format(os.path.splitext(filename)[
                                     0] + str(uuidSelected), str(format))  # Build file name
