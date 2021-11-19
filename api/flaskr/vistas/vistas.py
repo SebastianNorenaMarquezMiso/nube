@@ -6,7 +6,7 @@ import requests
 from flask import request, send_file
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from flask_restful import Resource
-
+import asyncio
 from modelos import db, User, Task, UserSchema, TaskSchema
 
 user_schema = UserSchema()
@@ -56,7 +56,7 @@ class VistaTasks(Resource):
         return json.loads(json.dumps([dict(row) for row in result], default=myConverter))
 
     @jwt_required()
-    def post(self):
+    async def post(self):
         identity = get_jwt_identity()
         f = request.files['file']
         format = request.form.get("newFormat")
@@ -70,7 +70,8 @@ class VistaTasks(Resource):
         values = {'fileType': format, 'taskId': task_schema.dump(new_task)['id']}
         requests.post(os.getenv('URL_CONVERSOR')+'/files',
                                 files=sendFile, data=values)
-        return "Tasks converted", 200
+        return "Task converted", 200                        
+
  
 
 
