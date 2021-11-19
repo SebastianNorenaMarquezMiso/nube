@@ -68,7 +68,7 @@ class VistaTasks(Resource):
         db.session.commit()
 
         values = {'fileType': format, 'taskId': task_schema.dump(new_task)['id']}
-        requests.post(os.getenv('URL_CONVERSOR')+'/files',
+        await requests.post(os.getenv('URL_CONVERSOR')+'/files',
                                 files=sendFile, data=values)
         return "Task converted", 200                        
 
