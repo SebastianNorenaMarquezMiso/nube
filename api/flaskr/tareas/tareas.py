@@ -44,7 +44,7 @@ def file_save(request_json):
         values = {'fileType': format, 'taskId': task_schema.dump(new_task)['id']}
         file = open(output, "rb")
         sendFile = {"file": file}
-        requests.post(urlFile+'/files',files=sendFile, data=values 
+        requests.post(urlFile+'/files',files=sendFile, data=values)
         os.remove(output)              
     return True
 
