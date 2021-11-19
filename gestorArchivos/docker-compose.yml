@@ -7,8 +7,8 @@ services:
     command: 'python app.py'
     environment:
       AWS_ACCESS_KEY_ID: ASIA3I2TQPFIXCEZ3KPA
-      AWS_SECRET_ACCESS_KEY_ID: aws_secret_access_key=kIrs/3JEiO29rFi+EwwwXiGC6ETYFZ6vvTfcChXE
-      AWS_SESSION_TOKEN: aws_session_token=FwoGZXIvYXdzECcaDNr+00c563hSEsGhoiLKAfsY1HZVuRSHalhf2QZ4y0KUibFrHRFZOxrSeKyazneUx4uALgTNTE19v/ZnEMCac5N3MHk+/FfJyX9CCorzndL5FQ/iGzAFkAN3dhCmhcgyPqRWgsvC13LU0DlcyOr0SFZy+zTawtSEJWbyPpDlza6k68MNnd1f6DRD62od2yMHp1Ik7qP9wpCXE6fu3YYGad/zPkP8/aLALzo0X9OKKeHgTptOW3bo9TBf+sexTwTmYJUM+4t+4dTxesA6KE7t1HX+TKQBr+D1Ngoo4/TcjAYyLTJgtgnyEyqYj/c+AspYWsp268SxKUjh6vNQhOLOsQPWj7rlu7PsOP0EqgODeg==
+      AWS_SECRET_ACCESS_KEY_ID: kIrs/3JEiO29rFi+EwwwXiGC6ETYFZ6vvTfcChXE
+      AWS_SESSION_TOKEN: FwoGZXIvYXdzECcaDNr+00c563hSEsGhoiLKAfsY1HZVuRSHalhf2QZ4y0KUibFrHRFZOxrSeKyazneUx4uALgTNTE19v/ZnEMCac5N3MHk+/FfJyX9CCorzndL5FQ/iGzAFkAN3dhCmhcgyPqRWgsvC13LU0DlcyOr0SFZy+zTawtSEJWbyPpDlza6k68MNnd1f6DRD62od2yMHp1Ik7qP9wpCXE6fu3YYGad/zPkP8/aLALzo0X9OKKeHgTptOW3bo9TBf+sexTwTmYJUM+4t+4dTxesA6KE7t1HX+TKQBr+D1Ngoo4/TcjAYyLTJgtgnyEyqYj/c+AspYWsp268SxKUjh6vNQhOLOsQPWj7rlu7PsOP0EqgODeg==
     volumes:
       - ./uploads/:/usr/src/app/uploads/
       - ./downloads/:/usr/src/app/downloads/
