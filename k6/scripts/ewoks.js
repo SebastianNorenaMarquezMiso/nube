@@ -13,7 +13,7 @@ export default function () {
     'newFormat': 'wma',
   };
   let params =  { headers: { "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTYzNjMwNjczNCwianRpIjoiMmQzM2NkZGQtYjE0ZS00OGNhLWI4ZjYtNzQ3YmYzMzNjNTRjIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6MSwibmJmIjoxNjM2MzA2NzM0LCJleHAiOjE2MzYzMDc2MzR9.gpr8AHee3ncrs5-Lvas-rjGqJhEuH16bnoaZtVNk7gY" } }
-  var response = http.post('http://ec2-18-207-99-175.compute-1.amazonaws.com/api/tasks', data,params);
+  var response = http.post('http://api-auto-scaling-1-1796748927.us-east-1.elb.amazonaws.com', data,params);
 
   check(response, { "status is 200": (r) => r.status === 200 });
   console.log(response.status);

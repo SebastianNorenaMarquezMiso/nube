@@ -32,7 +32,7 @@ api.add_resource(VistaFiles, '/files')
 api.add_resource(VistaGetFiles, '/get-files/<filename>')
 api.add_resource(VistaUpdateFiles, '/update-files')
 api.add_resource(VistaDeleteFiles, '/delete-files')
-api.add_resource(VistaTest, '/test')
+api.add_resource(VistaTest, '/')
 jwt = JWTManager(app)
 
 if __name__ == '__main__':

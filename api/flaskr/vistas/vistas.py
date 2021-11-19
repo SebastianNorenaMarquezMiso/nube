@@ -127,3 +127,7 @@ class VistaFileDetail(Resource):
 def myConverter(o):
     if isinstance(o, datetime.datetime):
         return o.__str__()
+        
+class VistaTest(Resource):
+    def get(self):
+        return "funcionando"

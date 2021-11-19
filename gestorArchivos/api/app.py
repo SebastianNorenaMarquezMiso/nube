@@ -9,6 +9,10 @@ app = Flask(__name__)
 BUCKET = "grupo5-files"
 
 
+@app.route("/", methods=['GET'])
+def test():
+    return "funcionando", 200
+
 @app.route("/upload", methods=['POST'])
 def postUpload():
     if request.method == "POST":
