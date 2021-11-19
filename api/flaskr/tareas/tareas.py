@@ -34,6 +34,7 @@ def file_save(request_json):
         outputF = request_json["outputF"]
         creation_date = request_json["creation_date"]
         dfile = request_json["dfile"]
+        identity = request_json["identity"]
         format = request_json["format"]
         ts = datetime.datetime.now()
         new_task = Task(name=filename, status="UPLOADED",

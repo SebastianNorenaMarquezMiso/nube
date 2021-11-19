@@ -81,6 +81,7 @@ class VistaTasks(Resource):
             'dfile':dfile,
             'format': request.form.get("newFormat"),
             'creation_date': str(int(time.time())),
+            'identity':identity
         }
         #args = (json,)
         file_save.delay(json)
