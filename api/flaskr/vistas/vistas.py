@@ -80,7 +80,7 @@ class VistaTasks(Resource):
             'inputF':inputF,
             'filename':filename,
             'dfile':dfile,
-            'format' = request.form.get("newFormat"),
+            'format': request.form.get("newFormat"),
             'creation_date': str(int(time.time())),
         }
         #args = (json,)
