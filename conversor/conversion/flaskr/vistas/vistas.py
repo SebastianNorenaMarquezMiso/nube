@@ -36,6 +36,7 @@ class VistaFiles(Resource):
             filename = '{}.{}'.format(os.path.splitext(filename)[0] + str(uuid.uuid4()),
                                       os.path.splitext(filename)[1])  # Build input name
             output = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+            print("******",filename)
             print(output)
             file.save(output)
             
