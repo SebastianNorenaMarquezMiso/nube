@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  api:
+    build:
+      context: ./flaskr/
+      dockerfile: Dockerfile
+    command: 'python app.py'
+    environment:
+      URL_CONVERSOR: http://ec2-3-235-86-6.compute-1.amazonaws.com
+    ports:
+      - 81:81

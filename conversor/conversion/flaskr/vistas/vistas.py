@@ -1,72 +1,61 @@
 import os
 import time
 import uuid
-
-from celery import Celery
-from flask import request, send_from_directory, current_app
+import io
+from tareas import file_conversion ,file_update,file_save
+from flask import request, send_from_directory, current_app , send_file
 from flask.json import jsonify
 from flask_restful import Resource
 from werkzeug.utils import secure_filename
+import requests
 
-FFMPEG_BIN = "ffmpeg.exe"
 ALLOWED_EXTENSIONS = set(['mp3', 'wav', 'ogg', 'aac', 'wma'])
 
-app = Celery('tasks', broker='redis://localhost:6379/0')
-
-
-@app.task(name="tabla.file_conversion")
-def file_conversion(request_json):
-    pass
-
-
-@app.task(name="tabla.file_update")
-def file_update(request_json):
-    pass
 
 
 class VistaFiles(Resource):
 
     def post(self):
         if 'file' not in request.files:
-            resp = jsonify({'message': 'No file part in the request'})
+            resp = jsonify({'message': 'No file part in the request'}) 
             resp.status_code = 400
             return resp
-
         if 'fileType' not in request.form:
             resp = jsonify({'message': 'No newFormat part in the request'})
             resp.status_code = 400
             return resp
-
         file = request.files['file']
 
         if file.filename == '':
             resp = jsonify({'message': 'No file selected for uploading'})
             resp.status_code = 400
             return resp
-
         if file and allowed_file(file.filename):
             format = request.form.get("fileType")
-
             filename = secure_filename(file.filename)
             filename = '{}.{}'.format(os.path.splitext(filename)[0] + str(uuid.uuid4()),
                                       os.path.splitext(filename)[1])  # Build input name
-            file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
+            output = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+            file.save(output)
+            
             uuidSelected = uuid.uuid4()
             dfile = '{}.{}'.format(os.path.splitext(filename)[
-                                       0] + str(uuidSelected), str(format))  # Build file name
-
+                                        0] + str(uuidSelected), str(format))  # Build file name
+            outputF = os.path.join(os.path.dirname(__file__).replace("vistas", "") + current_app.config['DOWNLOAD_FOLDER'], dfile)
+            inputF  = os.getenv('URL_ARCHIVOS')+'/upload/' + filename 
             json = {
+                'output':output,
+                'urlFile':os.getenv('URL_ARCHIVOS'),
+                'outputF':outputF,
+                'inputF':inputF,
+                'filename':filename,
+                'dfile':dfile,
                 'creation_date': str(int(time.time())),
-                'filename': filename,
-                'dfile': dfile,
                 'taskId': request.form.get("taskId")
             }
-
-            args = (json,)
-            file_conversion.apply_async(args)
-
+            #args = (json,)
+            file_save.delay(json)
             return "Task converted", 201
-
         else:
             resp = jsonify(
                 {'message': 'Allowed file types are mp3, wav, ogg ,aac ,wma'})
@@ -77,7 +66,9 @@ class VistaFiles(Resource):
 class VistaGetFiles(Resource):
     def get(self, filename):
         try:
-            return send_from_directory(current_app.config["UPLOAD_FOLDER"], filename=filename, as_attachment=True)
+            #print(os.path.join(os.path.dirname(__file__).replace("vistas", "") + current_app.config['DOWNLOAD_FOLDER']))
+            content = requests.get(os.getenv('URL_ARCHIVOS')+'/download/' + filename, stream=True)
+            return send_file(io.BytesIO(content.content), as_attachment=True, attachment_filename=filename)
         except FileNotFoundError:
             abort(404)
 
@@ -92,17 +83,24 @@ class VistaUpdateFiles(Resource):
 
         dfile = '{}.{}'.format(os.path.splitext(name)[0] + str(uuid.uuid4()), str(newFormat))  # Build file name
 
+        inputF=os.getenv('URL_ARCHIVOS')+'/upload/' +name  # Build input path
+        outputF = os.path.join(os.path.dirname(__file__).replace("vistas", "") + current_app.config['DOWNLOAD_FOLDER'],
+                            dfile)  # Build output path
+
         json = {
             'creation_date': str(int(time.time())),
             'filename': name,
             'dfile': dfile,
             'taskId': request.json["taskId"],
             'status': status,
-            'nameFormat': request.json['nameFormat']
+            'nameFormat': request.json['nameFormat'],
+            'output':outputF,
+            'input':inputF,
+            'urlFile': os.getenv('URL_ARCHIVOS')+'/download'
         }
 
-        args = (json,)
-        file_update.apply_async(args)
+        #args = (json,)
+        file_update.delay(json)
 
         return "Task updated", 201
 
@@ -127,3 +125,7 @@ class VistaDeleteFiles(Resource):
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+class VistaTest(Resource):
+    def get(self):
+        return "funcionando"

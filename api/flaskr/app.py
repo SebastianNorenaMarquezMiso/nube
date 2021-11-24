@@ -13,7 +13,7 @@ DOWNLOAD_FOLDER = 'download'
 
 def create_app(config_name):
     app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:admin@localhost:5432/test"
+    app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:uniandes@db-0001.cexmvypaid2k.us-east-1.rds.amazonaws.com:5432/postgres"
     app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
     app.config['DOWNLOAD_FOLDER'] = DOWNLOAD_FOLDER
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
@@ -41,4 +41,4 @@ api.add_resource(VistaFileDetail, '/api/files/<string:file_name>')
 jwt = JWTManager(app)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='0.0.0.0', debug=True,port=81)
