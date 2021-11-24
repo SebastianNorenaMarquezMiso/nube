@@ -9,7 +9,7 @@ services:
       - ./download/:/usr/src/app/download/
       - ./uploaded/:/usr/src/app/uploaded/
     environment:
-      URL_ARCHIVOS:  http://ec2-18-214-40-217.compute-1.amazonaws.com
+      URL_ARCHIVOS: http://ec2-44-192-127-179.compute-1.amazonaws.com
     ports:
       - 81:81
     depends_on:
@@ -37,19 +37,19 @@ services:
       FLASK_DEBUG: 1
       CELERY_BROKER_URL: redis://redis:6379/0        
       CELERY_RESULT_BACKEND: redis://redis:6379/0
-      URL_ARCHIVOS:  http://ec2-18-214-40-217.compute-1.amazonaws.com
+      URL_ARCHIVOS: http://ec2-44-192-127-179.compute-1.amazonaws.com
     links:
       - redis
     depends_on:
       - redis
-  flower:
-    image: mher/flower:0.9.5
-    restart: unless-stopped
-    command: ["flower", "--address=0.0.0.0", "--broker=redis://redis:6379/0","--port=5555", "--logging=DEBUG"]
-    depends_on:
-      - redis
-    ports:
-      - 5555:5555
+  #flower:
+  #  image: mher/flower:0.9.5
+  #  restart: unless-stopped
+  #  command: ["flower", "--address=0.0.0.0", "--broker=redis://redis:6379/0","--port=5555", "--logging=DEBUG"]
+  #  depends_on:
+  #    - redis
+  #  ports:
+  #    - 5555:5555
 volumes:
     redis_data:
     data_app: {} 

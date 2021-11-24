@@ -1,13 +1,16 @@
 import datetime
 import io
 import json
+import time
+import uuid
 import os
 import requests
-from flask import request, send_file
+from tareas import file_save
+from flask import current_app,request, send_file
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from flask_restful import Resource
-
 from modelos import db, User, Task, UserSchema, TaskSchema
+from werkzeug.utils import secure_filename
 
 user_schema = UserSchema()
 task_schema = TaskSchema()
@@ -58,22 +61,33 @@ class VistaTasks(Resource):
     @jwt_required()
     def post(self):
         identity = get_jwt_identity()
-        f = request.files['file']
-        format = request.form.get("newFormat")
-        sendFile = {"file": (f.filename, f.stream, f.mimetype)}
-        ts = datetime.datetime.now()
-        new_task = Task(name=f.filename, status="UPLOADED",
-                        dateUp=ts, datePr=ts, nameFormat="", user=identity)
-        db.session.add(new_task)
-        db.session.commit()
+        file = request.files['file']
+        filename = secure_filename(file.filename)
+        filename = '{}.{}'.format(os.path.splitext(filename)[0] + str(uuid.uuid4()),
+                                    os.path.splitext(filename)[1])  # Build input name
+        output = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+        file.save(output)        
+        uuidSelected = uuid.uuid4()
+        dfile = '{}.{}'.format(os.path.splitext(filename)[
+                                    0] + str(uuidSelected), str(format))  # Build file name
+        outputF = os.path.join(os.path.dirname(__file__).replace("vistas", "") + current_app.config['DOWNLOAD_FOLDER'], dfile)
+        inputF  = os.getenv('URL_CONVERSOR')+'/files/'
+        json = {
+            'output':output,
+            'urlFile':os.getenv('URL_CONVERSOR'),
+            'outputF':outputF,
+            'inputF':inputF,
+            'filename':filename,
+            'dfile':dfile,
+            'format': request.form.get("newFormat"),
+            'creation_date': str(int(time.time())),
+            'identity':identity
+        }
+        #args = (json,)
+        file_save.delay(json)
+        return "Task converted", 200  
 
-        values = {'fileType': format, 'taskId': task_schema.dump(new_task)['id']}
-        content = requests.post(os.getenv('URL_CONVERSOR')+'/files',
-                                files=sendFile, data=values)
-        if (content.status_code == 201):
-            return "Tasks converted", 200
-        else:
-            return content.json(), 400
+ 
 
 
 class VistaTaskDetail(Resource):
@@ -91,29 +105,23 @@ class VistaTaskDetail(Resource):
         task.status = "UPLOADED"
         task.dateUp = datetime.datetime.now()
         db.session.commit()
-        content = requests.put(os.getenv('URL_CONVERSOR') +'/update-files',
+        requests.put(os.getenv('URL_CONVERSOR') +'/update-files',
                                json={'name': taskJson['name'], 'status': taskJson['status']['llave'], 'taskId': task_id,
                                      'nameFormat': taskJson['nameFormat'], 'newFormat': request.form.get('newFormat')})
-
-        if (content.status_code == 201):
-            return "Task updated", 200
-        else:
-            return "Tasks not updated", 400
+        return "Task updated", 200
+       
 
     @jwt_required()
     def delete(self, task_id):
         task = Task.query.get_or_404(task_id)
         taskJson = json.loads(json.dumps(task_schema.dump(task), default=myConverter))
 
-        content = requests.delete(os.getenv('URL_CONVERSOR')+'/delete-files',
+        requests.delete(os.getenv('URL_CONVERSOR')+'/delete-files',
                                   json={'name': taskJson['name'], 'nameFormat': taskJson['nameFormat']})
-
-        if (content.status_code == 200):
-            db.session.delete(task)
-            db.session.commit()
-            return "Task deleted", 200
-        else:
-            return "Tasks not deleted", 400
+        db.session.delete(task)
+        db.session.commit()
+        return "Task deleted", 200
+        
 
 
 class VistaFileDetail(Resource):
@@ -127,3 +135,7 @@ class VistaFileDetail(Resource):
 def myConverter(o):
     if isinstance(o, datetime.datetime):
         return o.__str__()
+
+class VistaTest(Resource):
+    def get(self):
+        return "funcionando"

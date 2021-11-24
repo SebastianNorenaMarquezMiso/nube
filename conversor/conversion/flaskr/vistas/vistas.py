@@ -30,12 +30,14 @@ class VistaFiles(Resource):
             resp = jsonify({'message': 'No file selected for uploading'})
             resp.status_code = 400
             return resp
-        if file and allowed_file(file.filename):
+        if file and allowed_file(file.filename.replace("uploaded", "")):
             format = request.form.get("fileType")
-            filename = secure_filename(file.filename)
+            filename = secure_filename(file.filename.replace("uploaded", ""))
             filename = '{}.{}'.format(os.path.splitext(filename)[0] + str(uuid.uuid4()),
                                       os.path.splitext(filename)[1])  # Build input name
             output = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+            print("******",filename)
+            print(output)
             file.save(output)
             
             uuidSelected = uuid.uuid4()
