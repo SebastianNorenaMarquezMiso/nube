@@ -8,4 +8,4 @@ services:
     environment:
       URL_CONVERSOR: http://ec2-3-235-86-6.compute-1.amazonaws.com
     ports:
-      - 81:81
+      - 80:80
